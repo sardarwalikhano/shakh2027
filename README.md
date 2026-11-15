@@ -53,9 +53,9 @@ Never commit .env.local, Supabase secret keys, or service-role keys.
 ### Current delivery phase
 
 - M00 project foundation and M01 Identity/Auth foundations are deployed.
-- M02 shared UI foundations are present; role dashboards still need operational navigation and module-level workspaces.
-- M03 Merchant Store onboarding is being implemented on branch `feat/m03-merchant-store-onboarding`. It adds role-validated merchant applications, a single platform-owned SHAKH STORE record, Super Admin approval/rejection RPCs and review audit events.
-- The M03 migration is additive and is not yet applied to production. The new pages show a clear setup state until the migration is deployed.
+- M02 shared role-aware dashboard navigation is being completed on branch `feat/m02-role-aware-dashboard-navigation`. The shared shell displays database-authorized links for Super Admin, merchant, captain and customer roles and replaces duplicate dashboard headers.
+- M03 Merchant Store onboarding code has been merged into `main` through PR #1. It adds role-validated merchant applications, the dedicated platform-owned SHAKH STORE row, atomic Super Admin approval/rejection RPCs, review audit events, RLS and the merchant/admin pages.
+- The M03 migration is additive but is not yet applied to production. Production DDL is gated on a restorable backup; new pages show a clear setup state until the migration is deployed.
 - Product/catalog, inventory, posts/rewards, checkout/orders, captain delivery, wallet/ledger, commission settlement, referrals, top-ups and cashout workflows remain future implementation work. The financial rules in this README are approved requirements, not evidence that those workflows are already live.
 
 ## Database status
@@ -81,7 +81,7 @@ The previous `docs/database-audit.md` is a historical read-only audit of the leg
 
 ## Production integration
 
-- GitHub repository: `sardarwalikhano/shakh2027`, branch `main`.
+- GitHub repository: `sardarwalikhano/shakh2027`, branch `main`. M03 code is merged; M02 shared navigation is in progress.
 - Vercel project: `shakh2027`.
 - Canonical production URL: `https://www.daim-post.online`; `https://daim-post.online` redirects to `www`.
 - Vercel project environment variables include the Supabase URL, publishable key and canonical site URL for production, preview and development.

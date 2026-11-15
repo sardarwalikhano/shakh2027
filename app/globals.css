@@ -173,3 +173,86 @@ h1 em { color: var(--apricot-deep); font-style: normal; }
   .store-form-full { grid-column: auto; }
   .store-contact-list div { grid-template-columns: 90px minmax(0,1fr); }
 }
+
+
+/* M02 shared role-aware dashboard shell */
+.dashboard-shell { min-height: 100svh; }
+.dashboard-shell-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  width: 100%;
+  padding: 0 max(20px, calc((100vw - 1120px) / 2));
+  border-bottom: 1px solid var(--line);
+  background: rgba(255,250,245,.94);
+  backdrop-filter: blur(16px);
+}
+.dashboard-shell-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 72px;
+}
+.dashboard-shell-account {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.dashboard-shell-account > span {
+  max-width: min(38vw, 340px);
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-shell-account form { flex: 0 0 auto; }
+.dashboard-shell-nav {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 48px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+}
+.dashboard-shell-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  flex: 0 0 auto;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.dashboard-shell-nav a:hover,
+.dashboard-shell-nav a:focus-visible {
+  border-color: rgba(217,120,66,.22);
+  background: rgba(243,163,111,.14);
+  color: var(--apricot-deep);
+  outline: none;
+}
+.dashboard-shell-content { min-width: 0; }
+.dashboard-page { min-height: calc(100svh - 120px); }
+.dashboard-shell .dashboard-topbar { display: none; }
+@media (max-width: 760px) {
+  .dashboard-shell-header { padding-inline: 16px; }
+  .dashboard-shell-topbar { min-height: 64px; gap: 10px; }
+  .dashboard-shell-account { gap: 8px; }
+  .dashboard-shell-account > span { display: none; }
+  .dashboard-shell-nav { min-height: 44px; gap: 4px; margin-inline: -2px; }
+  .dashboard-shell-nav a { min-height: 32px; padding-inline: 10px; font-size: 10px; }
+}
+@media (max-width: 360px) {
+  .dashboard-shell-header { padding-inline: 11px; }
+  .dashboard-shell-topbar .brand { gap: 7px; }
+  .dashboard-shell-topbar .brand-mark { width: 38px; height: 38px; }
+  .dashboard-shell-account .signout-button { padding-inline: 11px; }
+}
