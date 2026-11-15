@@ -54,7 +54,7 @@ create unique index stores_one_platform_store_uidx
   where store_type = 'shakh_store';
 create unique index stores_owner_store_type_uidx
   on public.stores (owner_id, store_type)
-  where owner_id is not null;
+  where owner_id is not null and status <> 'rejected';
 create index stores_status_created_at_idx
   on public.stores (status, created_at desc);
 create index stores_store_type_status_idx
