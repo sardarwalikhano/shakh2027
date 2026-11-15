@@ -233,7 +233,7 @@ create table public.posts (
   ),
   constraint posts_image_path_shape check (
     image_path is null
-    or image_path ~ '^[0-9a-fA-F-]{36}/[0-9a-fA-F-]{36}\\.(jpg|jpeg|png|webp)$'
+    or image_path ~ '^[0-9a-fA-F-]{36}/[0-9a-fA-F-]{36}[.](jpg|jpeg|png|webp)$'
   )
 );
 
@@ -432,7 +432,7 @@ begin
   end if;
 
   if p_image_path is not null and (
-    p_image_path !~ ('^' || p_store_id::text || '/[0-9a-fA-F-]{36}\\.(jpg|jpeg|png|webp)$')
+    p_image_path !~ ('^' || p_store_id::text || '/[0-9a-fA-F-]{36}[.](jpg|jpeg|png|webp)$')
     or not exists (
       select 1 from storage.objects o
       where o.bucket_id = 'post-images' and o.name = p_image_path
