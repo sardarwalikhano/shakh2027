@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signIn } from "./actions";
+import { getMessages } from "@/lib/i18n/locale";
 
 type LoginPageProps = {
   searchParams: Promise<{ error?: string; message?: string }>;
@@ -7,8 +8,7 @@ type LoginPageProps = {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
-  const hasError = params.error === "invalid";
-  const message = params.message;
+  const { messages: t } = await getMessages();
 
   return (
     <main className="auth-page">
@@ -17,23 +17,23 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <span className="brand-mark">ش</span>
           <span><strong>SHAKH</strong><small>STORE</small></span>
         </Link>
-        <span className="eyebrow"><i /> چوونەژوورەوەی سیستەم</span>
-        <h1 className="auth-title">بەخێربێیتەوە</h1>
-        <p className="auth-description">بۆ بەردەوامبوون، زانیارییەکانی هەژمارەکەت بنووسە.</p>
-        {hasError && <p className="form-error" role="alert">ئیمەیڵ یان وشەی نهێنی دروست نییە.</p>}
-        {params.error === "callback" && <p className="form-error" role="alert">بەستەری پشتڕاستکردنەوە ناتەواوە یان بەسەرچووە.</p>}
-        {params.error === "session" && <p className="form-error" role="alert">تکایە دووبارە لە بەستەری نوێکردنەوەی وشەی نهێنی بکەرەوە.</p>}
-        {message === "check-email" && <p className="form-success" role="status">ئیمەیڵی پشتڕاستکردنەوە نێردراوە.</p>}
-        {message === "password-updated" && <p className="form-success" role="status">وشەی نهێنی بە سەرکەوتوویی نوێ کرایەوە.</p>}
+        <span className="eyebrow"><i /> {t.loginEyebrow}</span>
+        <h1 className="auth-title">{t.loginTitle}</h1>
+        <p className="auth-description">{t.loginDescription}</p>
+        {params.error === "invalid" && <p className="form-error" role="alert">{t.loginError}</p>}
+        {params.error === "callback" && <p className="form-error" role="alert">{t.callbackError}</p>}
+        {params.error === "session" && <p className="form-error" role="alert">{t.sessionError}</p>}
+        {params.message === "check-email" && <p className="form-success" role="status">{t.emailSent}</p>}
+        {params.message === "password-updated" && <p className="form-success" role="status">{t.passwordUpdated}</p>}
         <form action={signIn} className="auth-form">
-          <label htmlFor="email">ئیمەیڵ</label>
+          <label htmlFor="email">{t.email}</label>
           <input id="email" name="email" type="email" autoComplete="username" required maxLength={254} />
-          <label htmlFor="password">وشەی نهێنی</label>
+          <label htmlFor="password">{t.password}</label>
           <input id="password" name="password" type="password" autoComplete="current-password" required maxLength={1024} />
-          <button type="submit">چوونەژوورەوە <span>←</span></button>
+          <button type="submit">{t.login} <span>←</span></button>
         </form>
-        <Link className="forgot-link" href="/forgot-password">وشەی نهێنیت لەبیرچووە؟</Link>
-        <Link className="back-link" href="/">گەڕانەوە بۆ پەڕەی سەرەکی</Link>
+        <Link className="forgot-link" href="/forgot-password">{t.forgotPassword}</Link>
+        <Link className="back-link" href="/">{t.backHome}</Link>
       </section>
     </main>
   );
