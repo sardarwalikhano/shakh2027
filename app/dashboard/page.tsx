@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "./actions";
@@ -15,7 +16,7 @@ export default async function DashboardPage() {
   return (
     <main className="dashboard-page">
       <header className="dashboard-topbar">
-        <a className="brand" href="/">
+        <Link className="brand" href="/">
           <span className="brand-mark">ش</span>
           <span><strong>SHAKH</strong><small>STORE</small></span>
         </a>
