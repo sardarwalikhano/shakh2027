@@ -17,7 +17,9 @@ export default async function ForgotPasswordPage({ searchParams }: Props) {
         <span className="eyebrow"><i /> {t.forgotPassword}</span>
         <h1 className="auth-title">{t.forgotTitle}</h1>
         <p className="auth-description">{t.forgotDescription}</p>
-        {params.error && <p className="form-error" role="alert">{t.signupError}</p>}
+        {params.error === "send"
+          ? <p className="form-error" role="alert">{t.resetRequestError}</p>
+          : params.error && <p className="form-error" role="alert">{t.signupError}</p>}
         {params.message === "sent" && <p className="form-success" role="status">{t.resetSent}</p>}
         <form action={requestPasswordReset} className="auth-form">
           <label htmlFor="email">{t.email}</label>
