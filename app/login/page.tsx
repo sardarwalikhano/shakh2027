@@ -15,7 +15,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <Link className="brand auth-brand" href="/">
           <span className="brand-mark">ش</span>
           <span><strong>SHAKH</strong><small>STORE</small></span>
-        </a>
+        </Link>
         <span className="eyebrow"><i /> چوونەژوورەوەی سیستەم</span>
         <h1 className="auth-title">بەخێربێیتەوە</h1>
         <p className="auth-description">بۆ بەردەوامبوون، زانیارییەکانی هەژمارەکەت بنووسە.</p>
