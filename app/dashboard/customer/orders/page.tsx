@@ -32,6 +32,15 @@ type OrderRow = {
   order_items: OrderItem[];
 };
 
+type StatusEvent = {
+  id: string;
+  order_id: string;
+  to_status: OrderRow["status"];
+  actor_role: keyof Awaited<ReturnType<typeof getMessages>>["messages"]["roleLabels"];
+  reason: string | null;
+  created_at: string;
+};
+
 function formatIqd(value: number | string, locale: string) {
   return `${Number(value).toLocaleString(locale === "ku" ? "ku-IQ" : locale === "ar" ? "ar-IQ" : "en-IQ")} IQD`;
 }
@@ -58,6 +67,23 @@ export default async function CustomerOrdersPage({ searchParams }: Props) {
     || /public\.orders|schema cache|does not exist/i.test(error.message)
   ));
   const orders = (data ?? []) as unknown as OrderRow[];
+  let statusEvents: StatusEvent[] = [];
+  if (!missingSchema && orders.length > 0) {
+    const eventResult = await supabase
+      .from("order_status_events")
+      .select("id, order_id, to_status, actor_role, reason, created_at")
+      .in("order_id", orders.map((order) => order.id))
+      .order("created_at", { ascending: true });
+    if (!eventResult.error) statusEvents = (eventResult.data ?? []) as StatusEvent[];
+  }
+
+  const eventsByOrder = new Map<string, StatusEvent[]>();
+  for (const event of statusEvents) {
+    const existing = eventsByOrder.get(event.order_id) ?? [];
+    existing.push(event);
+    eventsByOrder.set(event.order_id, existing);
+  }
+
   const errorText = missingSchema || params.error === "migration"
     ? t.checkoutSchemaMissing
     : params.error === "unavailable" ? t.orderCancelUnavailable
@@ -103,6 +129,21 @@ export default async function CustomerOrdersPage({ searchParams }: Props) {
                   {new Date(order.created_at).toLocaleString(locale === "ku" ? "ku-IQ" : locale === "ar" ? "ar-IQ" : "en-IQ", { timeZone: "Asia/Baghdad" })}
                   · {t.checkoutCodOnly}
                 </p>
+                {(eventsByOrder.get(order.id)?.length ?? 0) > 0 && (
+                  <div className="customer-order-meta">
+                    <strong>{t.orderStatusHistory}</strong>
+                    {eventsByOrder.get(order.id)?.map((event) => (
+                      <p key={event.id}>
+                        {statusLabels[event.to_status]} · {new Date(event.created_at).toLocaleString(
+                          locale === "ku" ? "ku-IQ" : locale === "ar" ? "ar-IQ" : "en-IQ",
+                          { timeZone: "Asia/Baghdad" },
+                        )}
+                        {" — "}{t.roleLabels[event.actor_role]}
+                        {event.reason ? " · " + event.reason : ""}
+                      </p>
+                    ))}
+                  </div>
+                )}
                 <div className="customer-order-items">
                   {order.order_items.map((item) => (
                     <div key={item.id}>
