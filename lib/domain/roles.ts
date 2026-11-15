@@ -75,3 +75,36 @@ export function canPublishCategory(role: AppRole, category: ProductCategory): bo
   if (role === "baqal") return category === "baqal";
   return false;
 }
+
+export type StoreAccessDescriptor = {
+  id: string;
+  ownerId: string | null;
+  storeType: StoreType;
+};
+
+const MERCHANT_STORE_BY_ROLE: Partial<Record<AppRole, StoreType>> = {
+  restaurant: "restaurant",
+  supermarket: "supermarket",
+  meat_seafood_vendor: "meat_seafood",
+  baqal: "baqal",
+};
+
+// UI-level permission helper. Enforce the same invariant in database RPCs/RLS.
+export function canPublishInStore(
+  role: AppRole,
+  userId: string,
+  store: StoreAccessDescriptor,
+  category: ProductCategory,
+): boolean {
+  if (role === "super_admin") {
+    return store.storeType === "shakh_store"
+      && store.ownerId === null
+      && canPublishCategory(role, category);
+  }
+
+  const expectedStore = MERCHANT_STORE_BY_ROLE[role];
+  return expectedStore !== undefined
+    && store.storeType === expectedStore
+    && store.ownerId === userId
+    && canPublishCategory(role, category);
+}
