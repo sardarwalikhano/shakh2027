@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 const MIN_PASSWORD_LENGTH = 12;
 
@@ -17,6 +18,8 @@ export async function signUp(formData: FormData) {
   if (password.length < MIN_PASSWORD_LENGTH || password.length > 128 || password !== confirmation) {
     redirect("/signup?error=password");
   }
+
+  if (!isSupabaseConfigured()) redirect("/signup?error=config");
 
   const supabase = await createClient();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
