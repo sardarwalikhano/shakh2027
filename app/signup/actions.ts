@@ -1,0 +1,38 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+const MIN_PASSWORD_LENGTH = 12;
+
+export async function signUp(formData: FormData) {
+  const fullName = String(formData.get("fullName") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  const confirmation = String(formData.get("passwordConfirmation") ?? "");
+
+  if (fullName.length < 2 || fullName.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+    redirect("/signup?error=invalid");
+  }
+  if (password.length < MIN_PASSWORD_LENGTH || password.length > 128 || password !== confirmation) {
+    redirect("/signup?error=password");
+  }
+
+  const supabase = await createClient();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: new URL("/auth/callback", siteUrl).toString(),
+      data: { full_name: fullName },
+    },
+  });
+
+  if (error) {
+    // Avoid disclosing whether an email is already registered.
+    redirect("/signup?error=signup");
+  }
+
+  redirect("/signup?message=check-email");
+}
