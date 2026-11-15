@@ -52,7 +52,9 @@ The frontend is not yet connected to a newly provisioned production database. Do
 
 The previously inspected Supabase project `ewulzprizvbgypzaogez` is a legacy project and is not the target for this standalone build. It contains 11 public tables and existing data, and has no recorded migration history. It must not be reset or modified for SHAKH STORE.
 
-A separate `SHAKH-STORE-PRODUCTION` project was requested, but project provisioning was blocked by the platform tool. Create a new Supabase project in the selected organization and region, then connect the repository to that new project before applying migrations.
+A separate Supabase project was created by the user and its URL was supplied: `https://hzekyhcihhddehxndfyg.supabase.co` (ref `hzekyhcihhddehxndfyg`). The project is not yet visible to the currently connected Supabase MCP identity: `list_projects` only returns the legacy `ewulzprizvbgypzaogez` project, and direct project inspection returned a permission error. Connect/authorize the new project in the Supabase integration before applying any migrations.
+
+`.env.example` points to the new project URL, but its publishable key is intentionally blank. Do not use the legacy project's key. Add the new project's publishable key to local and Vercel environment variables only after access is granted.
 
 Known blockers from the initial read-only audit:
 
