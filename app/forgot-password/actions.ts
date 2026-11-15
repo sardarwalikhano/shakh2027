@@ -14,7 +14,7 @@ export async function requestPasswordReset(formData: FormData) {
 
   const supabase = await createClient();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const redirectTo = new URL("/auth/callback", siteUrl);
+  const redirectTo = new URL("/auth/confirm", siteUrl);
   redirectTo.searchParams.set("next", "/reset-password");
 
   let sendFailed = false;
