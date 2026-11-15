@@ -22,7 +22,7 @@ export default async function DashboardPage() {
           <span className="brand-mark">ش</span>
           <span><strong>SHAKH</strong><small>STORE</small></span>
         </Link>
-        <form action={signOut}><button className="signout-button" type="submit">{t.login === "Sign in" ? "Sign out" : t.login === "تسجيل الدخول" ? "تسجيل الخروج" : "چوونەدەرەوە"}</button></form>
+        <form action={signOut}><button className="signout-button" type="submit">{t.signOut}</button></form>
       </header>
       <section className="dashboard-welcome">
         <span className="eyebrow"><i /> {t.dashboardEyebrow}</span>
