@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { signIn } from "./actions";
 
 type LoginPageProps = {
@@ -11,7 +12,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <main className="auth-page">
       <section className="auth-panel">
-        <a className="brand auth-brand" href="/">
+        <Link className="brand auth-brand" href="/">
           <span className="brand-mark">ش</span>
           <span><strong>SHAKH</strong><small>STORE</small></span>
         </a>
@@ -26,7 +27,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <input id="password" name="password" type="password" autoComplete="current-password" required maxLength={1024} />
           <button type="submit">چوونەژوورەوە <span>←</span></button>
         </form>
-        <a className="back-link" href="/">گەڕانەوە بۆ پەڕەی سەرەکی</a>
+        <Link className="back-link" href="/">گەڕانەوە بۆ پەڕەی سەرەکی</Link>
       </section>
     </main>
   );
