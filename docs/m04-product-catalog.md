@@ -18,8 +18,8 @@ M04 does not implement inventory reservations, carts, checkout, order processing
 - Restaurant, supermarket, meat/seafood and baqal accounts can publish only in their own active approved store and only in the category matching their database role.
 - The browser does not decide authorization. `private.can_manage_store` and the public RPC functions check the signed-in user and `public.user_roles` in PostgreSQL.
 - Clients have SELECT access only on `public.products`; they do not receive direct INSERT, UPDATE or DELETE grants.
-- Image uploads are limited to JPEG, PNG and WebP, at most 5 MB. Storage paths are namespaced by the active store UUID. Storage RLS calls the same store-management check.
-- Product prices are positive integer IQD values. Stock quantity is optional and non-negative; NULL means no stock quantity was entered. This phase does not reserve or decrement stock on orders.
+- Image uploads are limited to JPEG, PNG and WebP, at most 5 MB. The server checks both MIME type and file signature before upload. Storage paths are namespaced by the active store UUID. Storage RLS calls the same store-management check.
+- Product prices are positive integer IQD values. Stock quantity is optional, non-negative and limited to three decimal places; NULL means no stock quantity was entered. This phase does not reserve or decrement stock on orders.
 
 ## Migration dependency and production gate
 
@@ -43,11 +43,11 @@ The connected Supabase toolset does not expose a restorable backup/export action
 5. A supermarket account cannot publish in another merchant category or another owner's store.
 6. A meat/seafood or baqal account is restricted to its corresponding store/category.
 7. Super Admin can publish every approved product category only in the platform-owned SHAKH STORE row.
-8. Super Admin cannot create a product in a merchant-owned store through the app RPC.
+8. Super Admin cannot create a product in a merchant-owned store through the app RPC, even if the account also has a merchant role.
 9. A direct authenticated INSERT/UPDATE/DELETE against `public.products` is denied by grants/RLS.
 10. An image cannot be uploaded to a store the caller does not manage.
-11. Unsupported image MIME types and files over 5 MB are rejected by the application and bucket configuration.
-12. Product prices are stored as positive integer IQD amounts; decimal or negative prices are rejected.
+11. Unsupported image MIME types, mismatched file signatures and files over 5 MB are rejected by the application and bucket configuration.
+12. Product prices are stored as positive integer IQD amounts; decimal or negative prices are rejected. Stock quantity rejects negative values, values above the numeric database limit and precision beyond three decimal places.
 13. An update cannot change store ownership and cannot move a merchant product into another category.
 14. Archiving hides the product from public catalog reads while preserving the row and image for the store manager.
 15. A failed product insert removes the just-uploaded image object to avoid an orphaned file.
