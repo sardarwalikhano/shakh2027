@@ -73,5 +73,7 @@ M06 depends on M03 and M04 schema. M05 feature code is the base branch, but M06 
 ## Validation status
 
 - Feature branch: `feat/m06-customer-cart-checkout`, based on M05 branch `feat/m05-posts-promotions`.
-- Application code and SQL have been added; TypeScript, lint, production build and non-production SQL adversarial tests are pending.
+- GitHub Actions passed TypeScript, ESLint and production build on commit `14958466f5c4762be46c503051a28f008866feda`.
+- Draft PR #6 targets `feat/m05-posts-promotions` so the phases remain sequential.
+- Non-production SQL migration, RLS, concurrency and stock tests are still pending because no isolated Supabase development branch has been provisioned.
 - The M06 migration is not applied to production. No mock orders, test customers or fake inventory are inserted into production.
