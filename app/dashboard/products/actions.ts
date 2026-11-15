@@ -149,7 +149,7 @@ export async function updateStoreProduct(formData: FormData) {
     p_product_id: productId,
     p_category: values.category,
     p_name: values.name,
-    p_slug: values.slug ?? "product",
+    p_slug: values.slug ?? "",
     p_description: values.description,
     p_price_iqd: values.price,
     p_unit_label: values.unit,
