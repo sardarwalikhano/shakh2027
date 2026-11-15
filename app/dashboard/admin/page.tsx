@@ -23,6 +23,10 @@ export default async function AdminDashboardPage() {
             <strong>{t.adminStoresLink}</strong>
             <span>{t.adminStoresDescription}</span>
           </Link>
+          <Link className="dashboard-action-card" href="/dashboard/products">
+            <strong>{t.productCatalogLink}</strong>
+            <span>{t.productManagementDescription}</span>
+          </Link>
         </div>
       </section>
     </main>
