@@ -88,7 +88,7 @@ create table public.products (
     stock_quantity is null or stock_quantity >= 0
   ),
   constraint products_image_path_shape check (
-    image_path ~ '^[0-9a-fA-F-]{36}/[0-9a-fA-F-]{36}\\.(jpg|jpeg|png|webp)$'
+    image_path ~ '^[0-9a-fA-F-]{36}/[0-9a-fA-F-]{36}\.(jpg|jpeg|png|webp)$'
   ),
   constraint products_status_allowed check (
     status in ('published', 'draft', 'archived')
@@ -288,7 +288,7 @@ begin
   end if;
 
   if p_image_path is null
-     or p_image_path !~ ('^' || p_store_id::text || '/[0-9a-fA-F-]{36}\\.(jpg|jpeg|png|webp)$')
+     or p_image_path !~ ('^' || p_store_id::text || '/[0-9a-fA-F-]{36}\.(jpg|jpeg|png|webp)$')
      or not exists (
        select 1
        from storage.objects o
