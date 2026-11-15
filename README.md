@@ -65,6 +65,16 @@ Known blockers from the initial read-only audit:
 - Existing database rows must be preserved. Do not reset, truncate, or replace the schema.
 - No migration should be applied until a verified backup/export and a reconciled, reviewed migration plan exist.
 
+
+- The first database migration is checked into `supabase/migrations/202611150001_auth_roles.sql`, with a deployment and Super Admin bootstrap runbook at `docs/supabase-auth-deployment.md`. It is a reviewed source artifact only and has not been applied to a Supabase project.
+
+## Current integration status — 2026-11-15
+
+- Vercel project `shakh2027` now exists and its deployment metadata identifies the GitHub source as `sardarwalikhano/shakh2027`, branch `main`. The initial production deployment was still in `BUILDING` state at the last inspection.
+- The Vercel project currently has no visible project environment variables, and only its generated `*.vercel.app` domain is attached. The custom domain `daim-post.online` has not been attached or verified.
+- The connected Supabase integration now exposes a different project, ref `zuxywfixaawupwgtbugi`, with zero public tables and zero migration records. This ref does not match the explicitly supplied project URL ref `hzekyhcihhddehxndfyg`. It must not be treated as the target until the project owner confirms it.
+- No Supabase migration has been executed. The legacy database remains untouched.
+
 ## Development constraints
 
 - No demo, mock, or seed data in production.
