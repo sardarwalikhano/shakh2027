@@ -50,6 +50,7 @@ grant select on table public.store_delivery_settings to anon, authenticated;
 create table public.orders (
   id uuid primary key default gen_random_uuid(),
   checkout_group_id uuid not null,
+  checkout_request_id uuid not null,
   order_number text not null unique default (
     'SHK-' || lpad(nextval('public.order_number_seq')::text, 8, '0')
   ),
@@ -68,6 +69,9 @@ create table public.orders (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
 
+  constraint orders_checkout_request_store_unique unique (
+    customer_id, checkout_request_id, store_id
+  ),
   constraint orders_status_allowed check (
     status in ('placed', 'accepted', 'preparing', 'ready_for_pickup',
       'assigned', 'picked_up', 'delivered', 'cancelled')
@@ -236,6 +240,7 @@ end;
 $$;
 
 create or replace function public.create_cod_checkout(
+  p_checkout_request_id uuid,
   p_items jsonb,
   p_customer_name text,
   p_customer_phone text,
@@ -271,6 +276,55 @@ begin
   ) then
     raise exception 'A customer role is required to place an order.'
       using errcode = '42501';
+  end if;
+
+  if p_checkout_request_id is null then
+    raise exception 'A checkout request key is required.'
+      using errcode = '22023';
+  end if;
+
+  -- Serialize retries using the same customer/request key. A lost response can safely retry.
+  perform pg_advisory_xact_lock(
+    hashtextextended(v_customer::text || ':' || p_checkout_request_id::text, 0)
+  );
+
+  if exists (
+    select 1 from public.orders
+    where customer_id = v_customer
+      and checkout_request_id = p_checkout_request_id
+  ) then
+    select checkout_group_id
+    into v_checkout_group
+    from public.orders
+    where customer_id = v_customer
+      and checkout_request_id = p_checkout_request_id
+    limit 1;
+
+    select count(*)::integer
+    into v_order_count
+    from public.orders
+    where customer_id = v_customer
+      and checkout_request_id = p_checkout_request_id;
+
+    select coalesce(jsonb_agg(jsonb_build_object(
+      'order_id', o.id,
+      'order_number', o.order_number,
+      'store_id', o.store_id,
+      'subtotal_iqd', o.subtotal_iqd,
+      'delivery_fee_iqd', o.delivery_fee_iqd,
+      'total_iqd', o.total_iqd
+    ) order by o.store_id), '[]'::jsonb)
+    into v_orders
+    from public.orders o
+    where o.customer_id = v_customer
+      and o.checkout_request_id = p_checkout_request_id;
+
+    return jsonb_build_object(
+      'checkout_group_id', v_checkout_group,
+      'order_count', v_order_count,
+      'orders', v_orders,
+      'idempotent_replay', true
+    );
   end if;
 
   if jsonb_typeof(p_items) <> 'array'
@@ -309,13 +363,29 @@ begin
       using errcode = '22023';
   end if;
 
-  -- Lock every referenced product in a stable order before checking stock or creating orders.
+  -- Lock products, stores and fee settings in stable order to avoid stock and fee races.
   perform p.id
   from public.products p
   join jsonb_to_recordset(p_items) as x(product_id uuid, quantity numeric)
     on x.product_id = p.id
   order by p.id
   for update of p;
+
+  perform s.id
+  from public.stores s
+  join public.products p on p.store_id = s.id
+  join jsonb_to_recordset(p_items) as x(product_id uuid, quantity numeric)
+    on x.product_id = p.id
+  order by s.id
+  for update of s;
+
+  perform d.id
+  from public.store_delivery_settings d
+  join public.products p on p.store_id = d.store_id
+  join jsonb_to_recordset(p_items) as x(product_id uuid, quantity numeric)
+    on x.product_id = p.id
+  order by d.store_id
+  for update of d;
 
   if exists (
     select 1
@@ -352,6 +422,7 @@ begin
 
     insert into public.orders (
       checkout_group_id,
+      checkout_request_id,
       customer_id,
       store_id,
       status,
@@ -367,6 +438,7 @@ begin
     )
     values (
       v_checkout_group,
+      p_checkout_request_id,
       v_customer,
       v_store.store_id,
       'placed',
@@ -490,14 +562,14 @@ $$;
 
 revoke all on function public.set_store_delivery_fee(uuid, bigint, boolean)
   from public, anon, authenticated;
-revoke all on function public.create_cod_checkout(jsonb, text, text, text, text)
+revoke all on function public.create_cod_checkout(uuid, jsonb, text, text, text, text)
   from public, anon, authenticated;
 revoke all on function public.cancel_cod_order(uuid)
   from public, anon, authenticated;
 
 grant execute on function public.set_store_delivery_fee(uuid, bigint, boolean)
   to authenticated;
-grant execute on function public.create_cod_checkout(jsonb, text, text, text, text)
+grant execute on function public.create_cod_checkout(uuid, jsonb, text, text, text, text)
   to authenticated;
 grant execute on function public.cancel_cod_order(uuid)
   to authenticated;
@@ -508,7 +580,7 @@ comment on table public.order_items is
   'Immutable item price and product snapshots at checkout; order history is not recalculated from current catalog prices.';
 comment on table public.store_delivery_settings is
   'Super Admin controlled per-store delivery fee configuration. Checkout is blocked until an active fee is configured.';
-comment on function public.create_cod_checkout(jsonb, text, text, text, text) is
+comment on function public.create_cod_checkout(uuid, jsonb, text, text, text, text) is
   'Validates current published product prices, store delivery configuration and stock in one transaction; creates one COD order per store and decrements tracked stock atomically.';
 comment on function public.cancel_cod_order(uuid) is
   'Allows a customer to cancel only their own unpaid placed order and restores tracked stock in the same transaction.';
