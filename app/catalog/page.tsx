@@ -3,17 +3,20 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getMessages } from "@/lib/i18n/locale";
 import type { ProductCategory } from "@/lib/domain/roles";
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 
 export const dynamic = "force-dynamic";
 
 type ProductRecord = {
   id: string;
+  store_id: string;
   name: string;
   description: string | null;
   category: ProductCategory;
   price_iqd: number | string;
   unit_label: string;
   image_path: string;
+  stock_quantity: number | string | null;
   stores: { name: string; slug: string; store_type: string } | null;
 };
 
@@ -29,7 +32,7 @@ export default async function CatalogPage() {
 
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, description, category, price_iqd, unit_label, image_path, stores!inner(name, slug, store_type)")
+    .select("id, store_id, name, description, category, price_iqd, unit_label, image_path, stock_quantity, stores!inner(name, slug, store_type)")
     .eq("status", "published")
     .order("created_at", { ascending: false })
     .limit(60);
@@ -60,6 +63,7 @@ export default async function CatalogPage() {
           <span><strong>SHAKH</strong><small>STORE</small></span>
         </Link>
         <nav className="catalog-header-actions">
+          <Link href="/cart">{t.cartTitle}</Link>
           <Link href="/login">{t.login}</Link>
           <Link className="primary-action" href="/signup">{t.signup}</Link>
         </nav>
@@ -88,6 +92,20 @@ export default async function CatalogPage() {
                   <span className="store-meta">{product.unit_label}</span>
                   {product.description && <p>{product.description}</p>}
                   {product.stores && <small>{product.stores.name}</small>}
+                  <AddToCartButton
+                    product={{
+                      productId: product.id,
+                      storeId: product.store_id,
+                      storeName: product.stores?.name ?? "",
+                      name: product.name,
+                      priceIqd: Number(product.price_iqd),
+                      unitLabel: product.unit_label,
+                      imagePath: product.image_path,
+                      stockQuantity: product.stock_quantity === null ? null : Number(product.stock_quantity),
+                    }}
+                    label={t.addToCart}
+                    addedLabel={t.addedToCart}
+                  />
                 </div>
               </article>
             );
