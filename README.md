@@ -37,40 +37,55 @@ Standalone foundation for the SHAKH STORE marketplace in Iraq. The repository is
 
 Never commit .env.local, Supabase secret keys, or service-role keys.
 
-## Implementation status
+## Implementation status — 2026-11-15
 
-- Sorani, Arabic and English landing and authentication flows are implemented with RTL/LTR direction switching.
-- Email/password sign-in, sign-up, email callback, password recovery and password update routes are implemented.
-- Server-side session validation and role-aware dashboard route guards are implemented against the planned `profiles` and `user_roles` tables.
-- Role dashboards exist for Super Admin, merchants, captains and customers.
-- PWA manifest, service-worker registration, static-asset caching and an offline fallback are included. Authenticated pages and API responses are explicitly excluded from service-worker caching.
-- GitHub Actions validates TypeScript, ESLint and the production build.
+### Completed foundations
 
-The frontend is not yet connected to a newly provisioned production database. Do not treat the role-based dashboard guard as active until the target schema and RLS policies have been deployed.
+- Sorani, Arabic and English landing/authentication flows use RTL for Kurdish and Arabic and LTR for English.
+- Email/password signup, sign-in, account confirmation, password recovery and password update are implemented.
+- Production password recovery passed an end-to-end test on 2026-11-15: Resend marked the TokenHash email delivered; Supabase verified the token by explicit POST, updated the password and accepted a subsequent sign-in with the new password.
+- Auth email templates use a scanner-safe TokenHash confirmation interstitial at `/auth/confirm`. Mail scanners can prefetch the page without consuming the one-time token.
+- Server-side session validation and database-backed role checks use `profiles` and `user_roles`; roles are not read from user-editable metadata.
+- Role dashboard routes exist for Super Admin, merchants, captains and customers.
+- PWA manifest, service-worker registration, static-asset caching and an offline fallback are included. Authenticated pages and API responses are excluded from service-worker caching.
+- GitHub Actions runs TypeScript checks, ESLint and a production build. Vercel production deployment and custom domains are configured and verified.
 
-## Database status — production project pending
+### Current delivery phase
 
-The previously inspected Supabase project `ewulzprizvbgypzaogez` is a legacy project and is not the target for this standalone build. It contains 11 public tables and existing data, and has no recorded migration history. It must not be reset or modified for SHAKH STORE.
+- M00 project foundation and M01 Identity/Auth foundations are deployed.
+- M02 shared UI foundations are present; role dashboards still need operational navigation and module-level workspaces.
+- M03 Merchant Store onboarding is being implemented on branch `feat/m03-merchant-store-onboarding`. It adds role-validated merchant applications, a single platform-owned SHAKH STORE record, Super Admin approval/rejection RPCs and review audit events.
+- The M03 migration is additive and is not yet applied to production. The new pages show a clear setup state until the migration is deployed.
+- Product/catalog, inventory, posts/rewards, checkout/orders, captain delivery, wallet/ledger, commission settlement, referrals, top-ups and cashout workflows remain future implementation work. The financial rules in this README are approved requirements, not evidence that those workflows are already live.
 
-The dedicated Supabase project is verified and connected: `https://zuxywfixaawupwgtbugi.supabase.co` (ref `zuxywfixaawupwgtbugi`). Preflight on 2026-11-15 confirmed 0 public tables, 0 migrations, 0 Auth users and 0 Storage buckets. The modern publishable key is configured in Vercel; no service-role key is used by the browser.
+## Database status
 
-Known blockers from the initial read-only audit:
+The active SHAKH STORE Supabase project is `zuxywfixaawupwgtbugi` in `ap-northeast-1`. The Auth/Roles migration and the assigned-by index migration are applied. The current public application schema contains:
 
-- The current cashout routine hardcodes a 75% customer payout / 25% platform fee. This split was not approved in the SHAKH STORE blueprint and must not be treated as a business rule.
-- Several SECURITY DEFINER routines accept caller-supplied user IDs; their authorization boundaries need review.
-- The cashout routine is executable by authenticated users and needs privilege review.
-- One table has RLS enabled without policies.
-- Existing database rows must be preserved. Do not reset, truncate, or replace the schema.
-- The initial Auth/Roles migration has now been reviewed and deployed to the verified empty target project. Future migrations must be reviewed, backed up and verified before application.
+- `profiles`
+- `user_roles`
 
+Both tables have RLS enabled. The current target project is separate from the legacy Supabase project `ewulzprizvbgypzaogez`; that legacy project and its data must remain untouched.
 
-- The initial Auth/Roles migration `supabase/migrations/202611150001_auth_roles.sql` and the follow-up index migration `supabase/migrations/202611150002_user_roles_assigned_by_index.sql` have been deployed and verified on the target project. Setup and Super Admin bootstrap steps are documented at `docs/supabase-auth-deployment.md`.
+The M03 migration file `supabase/migrations/202611150003_merchant_stores.sql` is additive and includes `stores`, `store_review_events`, merchant store submission and Super Admin review functions, RLS policies, indexes, and the single platform-owned SHAKH STORE row. It must not be applied to production until a restorable backup is confirmed and the migration is reviewed. The available Supabase connector does not create or download a restorable database backup, so production DDL remains pending rather than claiming a backup exists.
 
-## Current integration status — 2026-11-15
+The previous `docs/database-audit.md` is a historical read-only audit of the legacy project, not a description of the active SHAKH STORE target. Do not run its old-project findings as SQL against the new target.
 
-- Vercel project `shakh2027` now exists and its deployment metadata identifies the GitHub source as `sardarwalikhano/shakh2027`, branch `main`. The initial production deployment was still in `BUILDING` state at the last inspection.
-- The Vercel project has the Supabase URL, publishable key and site URL configured for production, preview and development. Only `shakh2027.vercel.app` is attached; the custom domain `daim-post.online` has not been attached or verified.
-- Supabase project `zuxywfixaawupwgtbugi` is verified as the target. Its Auth/Roles and foreign-key index migrations have been applied and verified. The legacy database remains untouched.
+### Security and operational notes
+
+- Supabase Security Advisor currently reports leaked-password protection disabled. Enable it in Supabase Auth password security before launch.
+- Supabase Performance Advisor currently reports only unused indexes on the low-traffic role tables; no current Health Advisor findings were returned.
+- The existing Auth/Roles migrations must remain unchanged. Future schema changes must be additive, backed up, reviewed and independently verified.
+- No mock, demo or seed marketplace content may be inserted. The one platform-owned SHAKH STORE row in M03 is required operational configuration, not demo content.
+- Financial changes must be database-side, atomic, idempotent and ledger-backed. Do not ship frontend balance edits or unapproved percentage splits.
+
+## Production integration
+
+- GitHub repository: `sardarwalikhano/shakh2027`, branch `main`.
+- Vercel project: `shakh2027`.
+- Canonical production URL: `https://www.daim-post.online`; `https://daim-post.online` redirects to `www`.
+- Vercel project environment variables include the Supabase URL, publishable key and canonical site URL for production, preview and development.
+- Resend verified sender domain: `shakh.daim-post.online`. DKIM and both SPF CNAME records are verified; sending is enabled. Supabase custom SMTP was updated to a sending-only key restricted to that verified domain.
 
 ## Development constraints
 

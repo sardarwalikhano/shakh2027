@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAnyRole } from "@/lib/auth/context";
 import { getMessages } from "@/lib/i18n/locale";
 
@@ -16,6 +17,12 @@ export default async function AdminDashboardPage() {
         <div className="account-card">
           <strong>{t.platformStore}</strong>
           <span>{t.platformStoreDescription}</span>
+        </div>
+        <div className="dashboard-action-grid">
+          <Link className="dashboard-action-card" href="/dashboard/admin/stores">
+            <strong>{t.adminStoresLink}</strong>
+            <span>{t.adminStoresDescription}</span>
+          </Link>
         </div>
       </section>
     </main>
