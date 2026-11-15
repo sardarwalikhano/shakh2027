@@ -104,3 +104,8 @@ h1 em { color: var(--apricot-deep); font-style: normal; }
   .auth-panel { padding: 28px 22px; }
   .dashboard-welcome { padding: 58px 0; }
 }
+
+.form-success { padding: 11px 13px; border-radius: 9px; background: #edf8ef; color: #28613b; font-size: 13px; line-height: 1.8; }
+.forgot-link { justify-self: start; margin-top: 7px; color: var(--apricot-deep); font-size: 12px; font-weight: 700; }
+.auth-footnote { margin: 18px 0 0; color: var(--muted); font-size: 12px; }
+.auth-footnote a { color: var(--apricot-deep); font-weight: 700; }
