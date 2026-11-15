@@ -24,6 +24,10 @@ export default async function MerchantDashboardPage() {
             <strong>{t.merchantStoreLink}</strong>
             <span>{t.storePageDescription}</span>
           </Link>
+          <Link className="dashboard-action-card" href="/dashboard/products">
+            <strong>{t.productCatalogLink}</strong>
+            <span>{t.productManagementDescription}</span>
+          </Link>
         </div>
       </section>
     </main>

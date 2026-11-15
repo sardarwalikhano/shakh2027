@@ -18,14 +18,17 @@ export default async function DashboardLayout({
 
   const items: NavItem[] = [
     { href: "/dashboard", label: t.dashboardEyebrow },
+    { href: "/catalog", label: t.productPublicCatalog },
   ];
   const roles = new Set<AppRole>(context.roles);
+  const addItem = (item: NavItem) => {
+    if (!items.some((existing) => existing.href === item.href)) items.push(item);
+  };
 
   if (roles.has("super_admin")) {
-    items.push(
-      { href: "/dashboard/admin", label: t.adminTitle },
-      { href: "/dashboard/admin/stores", label: t.adminStoresLink },
-    );
+    addItem({ href: "/dashboard/admin", label: t.adminTitle });
+    addItem({ href: "/dashboard/admin/stores", label: t.adminStoresLink });
+    addItem({ href: "/dashboard/products", label: t.productCatalogLink });
   }
 
   if (
@@ -34,18 +37,17 @@ export default async function DashboardLayout({
     || roles.has("meat_seafood_vendor")
     || roles.has("baqal")
   ) {
-    items.push(
-      { href: "/dashboard/merchant", label: t.merchantTitle },
-      { href: "/dashboard/merchant/store", label: t.merchantStoreLink },
-    );
+    addItem({ href: "/dashboard/merchant", label: t.merchantTitle });
+    addItem({ href: "/dashboard/merchant/store", label: t.merchantStoreLink });
+    addItem({ href: "/dashboard/products", label: t.productCatalogLink });
   }
 
   if (roles.has("captain")) {
-    items.push({ href: "/dashboard/captain", label: t.captainTitle });
+    addItem({ href: "/dashboard/captain", label: t.captainTitle });
   }
 
   if (roles.has("customer")) {
-    items.push({ href: "/dashboard/customer", label: t.customerTitle });
+    addItem({ href: "/dashboard/customer", label: t.customerTitle });
   }
 
   return (

@@ -21,6 +21,7 @@ export default async function HomePage() {
           <div className="hero-actions">
             <Link className="primary-action" href="/login">{t.login} <span>←</span></Link>
             <Link className="secondary-action" href="/signup">{t.signup}</Link>
+            <Link className="secondary-action" href="/catalog">{t.productPublicCatalog}</Link>
             <span className="currency-note">{t.currencyNote}</span>
           </div>
         </div>
