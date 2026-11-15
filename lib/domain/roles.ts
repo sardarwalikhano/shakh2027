@@ -20,6 +20,19 @@ export const STORE_TYPES = [
 
 export type StoreType = (typeof STORE_TYPES)[number];
 
+export const PRODUCT_CATEGORIES = [
+  "restaurant",
+  "supermarket",
+  "meat_seafood",
+  "baqal",
+  "produce",
+  "drinks",
+  "household",
+  "other",
+] as const;
+
+export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number];
+
 export const ROLE_LABELS: Record<AppRole, string> = {
   super_admin: "بەڕێوەبەری گشتی",
   restaurant: "چێشتخانە",
@@ -48,10 +61,14 @@ export function isStoreType(value: unknown): value is StoreType {
   return typeof value === "string" && (STORE_TYPES as readonly string[]).includes(value);
 }
 
+export function isProductCategory(value: unknown): value is ProductCategory {
+  return typeof value === "string" && (PRODUCT_CATEGORIES as readonly string[]).includes(value);
+}
+
 // Presentation helpers only. Database RLS and server actions remain the
 // authoritative enforcement boundary for every protected operation.
-export function canPublishCategory(role: AppRole, category: StoreType): boolean {
-  if (role === "super_admin") return category !== "shakh_store";
+export function canPublishCategory(role: AppRole, category: ProductCategory): boolean {
+  if (role === "super_admin") return true;
   if (role === "restaurant") return category === "restaurant";
   if (role === "supermarket") return category === "supermarket";
   if (role === "meat_seafood_vendor") return category === "meat_seafood";
