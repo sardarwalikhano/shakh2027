@@ -23,6 +23,7 @@ export default async function HomePage() {
             <Link className="secondary-action" href="/signup">{t.signup}</Link>
             <Link className="secondary-action" href="/catalog">{t.productPublicCatalog}</Link>
             <Link className="secondary-action" href="/posts">{t.publicPosts}</Link>
+            <Link className="secondary-action" href="/cart">{t.cartTitle}</Link>
             <span className="currency-note">{t.currencyNote}</span>
           </div>
         </div>
