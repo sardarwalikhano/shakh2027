@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAnyRole } from "@/lib/auth/context";
 import { getMessages } from "@/lib/i18n/locale";
 
@@ -18,6 +19,20 @@ export default async function CustomerDashboardPage() {
           <strong>{t.cashOnDelivery}</strong>
           <span>{t.rewardReferral}</span>
           <strong>{t.rewardDescription}</strong>
+        </div>
+        <div className="dashboard-action-grid">
+          <Link className="dashboard-action-card" href="/catalog">
+            <strong>{t.productPublicCatalog}</strong>
+            <span>{t.productCatalogDescription}</span>
+          </Link>
+          <Link className="dashboard-action-card" href="/cart">
+            <strong>{t.cartTitle}</strong>
+            <span>{t.cartDescription}</span>
+          </Link>
+          <Link className="dashboard-action-card" href="/dashboard/customer/orders">
+            <strong>{t.customerOrdersLink}</strong>
+            <span>{t.customerOrdersTitle}</span>
+          </Link>
         </div>
       </section>
     </main>
