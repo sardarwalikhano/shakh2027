@@ -148,6 +148,9 @@ export async function createStorePost(formData: FormData) {
   let imagePath: string | null = null;
 
   if (imageFile) {
+    if (!isProductImageMimeType(imageFile.type)) {
+      redirect("/dashboard/posts?error=image");
+    }
     const extension = PRODUCT_IMAGE_TYPES[imageFile.type];
     imagePath = `${storeId}/${crypto.randomUUID()}.${extension}`;
     const { error: uploadError } = await supabase.storage
