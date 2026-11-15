@@ -23,6 +23,7 @@ export default function HomePage() {
           <p>شوێنێکی یەکگرتوو بۆ بینینی بەرهەمەکان، داواکردن و بەڕێوەبردنی فرۆشگا و گەیاندن؛ بە شێوەیەکی ڕێکخراو و پارێزراو.</p>
           <div className="hero-actions">
             <Link className="primary-action" href="/login">چوونەژوورەوە <span>←</span></Link>
+            <Link className="secondary-action" href="/signup">دروستکردنی هەژمار</Link>
             <span className="currency-note">IQD · دیناری عێراقی</span>
           </div>
         </div>
