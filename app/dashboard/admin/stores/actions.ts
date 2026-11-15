@@ -31,7 +31,6 @@ export async function reviewMerchantStore(formData: FormData) {
   if (error) {
     console.error("Merchant store review failed.", {
       code: error.code,
-      status: error.status,
     });
     if (error.code === "42501") redirect("/dashboard/admin/stores?error=forbidden");
     if (error.code === "PGRST202" || error.code === "PGRST205" || error.code === "42P01") {
