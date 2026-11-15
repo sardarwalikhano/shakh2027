@@ -64,16 +64,16 @@ M06 depends on M03 and M04 schema. M05 feature code is the base branch, but M06 
 
 ## Known boundaries for later phases
 
-- M07 must add merchant acceptance/preparation, order status audit events, and controlled transition RPCs; every transition must lock the order row and validate its current status.
+- M07 implements merchant acceptance/preparation, an append-only order status audit trail, and controlled transition RPCs. Every transition locks the order row, validates the actor and current status, and uses an idempotency key.
 - M08 must add captain assignment, pickup/delivery proof, and the 20% delivery fee commission rule without splitting the cash fee collected from the customer.
 - M09 must add captain/merchant wallet funding, immutable financial settlement entries and manual FastPay/FIB proof approval.
 - M10 must add eligible delivered-order rewards, referral attribution and cashout approval/payment tracking.
-- Inventory compensation after merchant/admin cancellation or after order rejection must be implemented in M07, using an idempotent state transition; M06 only restores stock for customer cancellation while status is still `placed`.
+- M07 implements inventory compensation for valid merchant and Super Admin cancellation, plus the M06 customer cancellation path, through one idempotent transition worker. The M07 migration remains gated on non-production tests and a restorable backup.
 
 ## Validation status
 
 - Feature branch: `feat/m06-customer-cart-checkout`, based on M05 branch `feat/m05-posts-promotions`.
-- GitHub Actions passed TypeScript, ESLint and production build on commit `14958466f5c4762be46c503051a28f008866feda`.
+- GitHub Actions passed TypeScript, ESLint and production build on current M06 head `c4d3206b3a57dcbc4307f09be68f6ada926a0cd3`.
 - Draft PR #6 targets `feat/m05-posts-promotions` so the phases remain sequential.
 - Non-production SQL migration, RLS, concurrency and stock tests are still pending because no isolated Supabase development branch has been provisioned.
 - The M06 migration is not applied to production. No mock orders, test customers or fake inventory are inserted into production.
