@@ -41,7 +41,6 @@ export async function updateOwnProfile(formData: FormData) {
   if (error) {
     console.error("Profile update failed.", {
       code: error.code,
-      status: error.status,
     });
     redirect("/dashboard/profile?error=update");
   }
