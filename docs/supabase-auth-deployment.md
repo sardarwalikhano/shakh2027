@@ -33,7 +33,7 @@ Use the modern `sb_publishable_...` key. The legacy `anon` key is public-compati
 
 ## Apply migration
 
-The migration has been committed to `supabase/migrations/202611150001_auth_roles.sql` and is to be applied to the verified project ref `zuxywfixaawupwgtbugi` only.
+The migrations `supabase/migrations/202611150001_auth_roles.sql` and `supabase/migrations/202611150002_user_roles_assigned_by_index.sql` have both been applied to the verified project ref `zuxywfixaawupwgtbugi`.
 
 For CLI-based deployment from a trusted machine:
 
@@ -79,4 +79,4 @@ Configure a verified SMTP sender identity before relying on production confirmat
 - A Super Admin can read profiles and role assignments.
 - Editing `user_metadata` cannot grant an application role.
 - Auth callback and password recovery routes work with the configured redirect URLs.
-- Supabase Security, Performance and Health Advisors show no unresolved issues introduced by this migration.
+- Supabase Security and Health Advisors return no findings. Performance Advisor reports only unused-index notices while the new tables have no production traffic; the missing foreign-key index finding has been resolved.
