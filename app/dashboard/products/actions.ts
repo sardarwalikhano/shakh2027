@@ -48,7 +48,12 @@ function parseProductValues(formData: FormData) {
     || price > 100_000_000_000
     || unit.length < 1
     || unit.length > 32
-    || (stock !== null && (!Number.isFinite(stock) || stock < 0))
+    || (stock !== null && (
+      !Number.isFinite(stock)
+      || stock < 0
+      || stock > 99_999_999_999.999
+      || Math.abs(stock * 1000 - Math.round(stock * 1000)) > 1e-8
+    ))
   ) {
     return null;
   }
@@ -73,6 +78,37 @@ function redirectForProductError(code: string | undefined, fallback: string): ne
   redirect(fallback);
 }
 
+async function hasValidImageSignature(file: File): Promise<boolean> {
+  const header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+
+  if (file.type === "image/jpeg") {
+    return header.length >= 3
+      && header[0] === 0xff
+      && header[1] === 0xd8
+      && header[2] === 0xff;
+  }
+
+  if (file.type === "image/png") {
+    return header.length >= 8
+      && header[0] === 0x89
+      && header[1] === 0x50
+      && header[2] === 0x4e
+      && header[3] === 0x47
+      && header[4] === 0x0d
+      && header[5] === 0x0a
+      && header[6] === 0x1a
+      && header[7] === 0x0a;
+  }
+
+  if (file.type === "image/webp") {
+    return header.length >= 12
+      && String.fromCharCode(...header.slice(0, 4)) === "RIFF"
+      && String.fromCharCode(...header.slice(8, 12)) === "WEBP";
+  }
+
+  return false;
+}
+
 export async function createStoreProduct(formData: FormData) {
   await requireAnyRole(MANAGER_ROLES);
 
@@ -87,6 +123,7 @@ export async function createStoreProduct(formData: FormData) {
     || image.size < 1
     || image.size > PRODUCT_IMAGE_MAX_BYTES
     || !isProductImageMimeType(image.type)
+    || !(await hasValidImageSignature(image))
   ) {
     redirect("/dashboard/products?error=invalid");
   }
@@ -139,6 +176,7 @@ export async function updateStoreProduct(formData: FormData) {
   if (
     !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(productId)
     || !values
+    || !values.slug
   ) {
     redirect("/dashboard/products?error=invalid");
   }
