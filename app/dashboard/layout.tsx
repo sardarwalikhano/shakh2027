@@ -18,6 +18,7 @@ export default async function DashboardLayout({
 
   const items: NavItem[] = [
     { href: "/dashboard", label: t.dashboardEyebrow },
+    { href: "/dashboard/profile", label: t.profileLink },
     { href: "/catalog", label: t.productPublicCatalog },
   ];
   const roles = new Set<AppRole>(context.roles);
