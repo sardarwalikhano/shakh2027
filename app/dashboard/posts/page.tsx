@@ -19,6 +19,7 @@ type StoreRow = {
 
 type ProductRow = {
   id: string;
+  store_id: string;
   name: string;
   category: ProductCategory;
   price_iqd: number | string;
@@ -66,6 +67,17 @@ const MANAGER_ROLES = [
 function formatIqd(value: number | string, locale: string) {
   const amount = Number(value);
   return `${amount.toLocaleString(locale === "ku" ? "ku-IQ" : locale === "ar" ? "ar-IQ" : "en-IQ")} IQD`;
+}
+
+function typeLabel(type: PostRow["post_type"], t: Awaited<ReturnType<typeof getMessages>>["messages"]) {
+  return type === "promotion" ? t.postTypePromotion : t.postTypeAnnouncement;
+}
+
+function statusLabel(status: PostRow["status"], t: Awaited<ReturnType<typeof getMessages>>["messages"]) {
+  if (status === "published") return t.postStatusPublished;
+  if (status === "paused") return t.postStatusPaused;
+  if (status === "archived") return t.postStatusArchived;
+  return t.postStatusDraft;
 }
 
 function typeLabel(type: PostRow["post_type"], t: Awaited<ReturnType<typeof getMessages>>["messages"]) {
@@ -143,7 +155,7 @@ export default async function PostsManagementPage({ searchParams }: Props) {
         .eq("wallet_type", "merchant")
         .in("store_id", storeIds),
       supabase.from("products")
-        .select("id, name, category, price_iqd")
+        .select("id, store_id, name, category, price_iqd")
         .in("store_id", storeIds)
         .eq("status", "published")
         .order("name"),
@@ -161,7 +173,7 @@ export default async function PostsManagementPage({ searchParams }: Props) {
     products = (productResult.data ?? []) as ProductRow[];
     posts = (postResult.data ?? []) as PostRow[];
 
-    if (!schemaMissing(postError)) {
+    if (!schemaMissing(postError) && posts.length > 0) {
       const { data: reservationData, error: reservationError } = await supabase
         .from("promotion_budget_reservations")
         .select("post_id, remaining_reward_budget_iqd, remaining_reward_units, status")
@@ -211,7 +223,7 @@ export default async function PostsManagementPage({ searchParams }: Props) {
 
         {!m03Missing && !m04Missing && !m05Missing && stores.map((store) => {
           const wallet = wallets.find((row) => row.store_id === store.id);
-          const storeProducts = products.filter((product) => product);
+          const storeProducts = products.filter((product) => product.store_id === store.id);
           const storePosts = posts.filter((post) => post.store_id === store.id);
 
           return (
