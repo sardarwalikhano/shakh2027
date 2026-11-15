@@ -182,7 +182,7 @@ begin
   end if;
 
   if nullif(btrim(coalesce(p_slug, '')), '') is null then
-    v_slug := 'store-' || substr(replace(v_user_id::text, '-', ''), 1, 10) || '-' || p_store_type;
+    v_slug := 'store-' || substr(replace(gen_random_uuid()::text, '-', ''), 1, 8) || '-' || p_store_type;
   else
     v_slug := lower(btrim(p_slug));
   end if;
@@ -262,7 +262,7 @@ begin
       using errcode = '42501';
   end if;
 
-  if p_decision not in ('approve', 'reject') then
+  if p_decision is null or p_decision not in ('approve', 'reject') then
     raise exception 'Decision must be approve or reject.'
       using errcode = '22023';
   end if;
