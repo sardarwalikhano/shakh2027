@@ -44,20 +44,23 @@ export async function checkoutCodOrder(formData: FormData) {
 
   const parsedItems: { product_id: string; quantity: number }[] = [];
   for (const item of items) {
+    if (!item || typeof item !== "object") redirect("/cart?error=invalid");
+    const row = item as Record<string, unknown>;
+    const productId = row.product_id;
+    const quantity = row.quantity;
+
     if (
-      !item
-      || typeof item !== "object"
-      || typeof item.product_id !== "string"
-      || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(item.product_id)
-      || typeof item.quantity !== "number"
-      || !Number.isFinite(item.quantity)
-      || item.quantity <= 0
-      || item.quantity > 100000
-      || Math.abs(item.quantity * 1000 - Math.round(item.quantity * 1000)) > 1e-8
+      typeof productId !== "string"
+      || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(productId)
+      || typeof quantity !== "number"
+      || !Number.isFinite(quantity)
+      || quantity <= 0
+      || quantity > 100000
+      || Math.abs(quantity * 1000 - Math.round(quantity * 1000)) > 1e-8
     ) {
       redirect("/cart?error=invalid");
     }
-    parsedItems.push({ product_id: item.product_id, quantity: item.quantity });
+    parsedItems.push({ product_id: productId, quantity });
   }
 
   if (new Set(parsedItems.map((item) => item.product_id)).size !== parsedItems.length) {
