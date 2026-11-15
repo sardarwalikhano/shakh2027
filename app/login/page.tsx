@@ -2,7 +2,7 @@ import Link from "next/link";
 import { signIn } from "./actions";
 
 type LoginPageProps = {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; message?: string }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -24,7 +24,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         {params.error === "callback" && <p className="form-error" role="alert">بەستەری پشتڕاستکردنەوە ناتەواوە یان بەسەرچووە.</p>}
         {params.error === "session" && <p className="form-error" role="alert">تکایە دووبارە لە بەستەری نوێکردنەوەی وشەی نهێنی بکەرەوە.</p>}
         {message === "check-email" && <p className="form-success" role="status">ئیمەیڵی پشتڕاستکردنەوە نێردراوە.</p>}
-        {message === "password-updated" && <p className="form-success" role="status">وشەی نهێنی بە سەرکەوتوویی نوێ کرایەوە.</p>
+        {message === "password-updated" && <p className="form-success" role="status">وشەی نهێنی بە سەرکەوتوویی نوێ کرایەوە.</p>}
         <form action={signIn} className="auth-form">
           <label htmlFor="email">ئیمەیڵ</label>
           <input id="email" name="email" type="email" autoComplete="username" required maxLength={254} />
