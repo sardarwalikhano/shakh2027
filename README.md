@@ -52,9 +52,7 @@ The frontend is not yet connected to a newly provisioned production database. Do
 
 The previously inspected Supabase project `ewulzprizvbgypzaogez` is a legacy project and is not the target for this standalone build. It contains 11 public tables and existing data, and has no recorded migration history. It must not be reset or modified for SHAKH STORE.
 
-A separate Supabase project was created by the user and its URL was supplied: `https://hzekyhcihhddehxndfyg.supabase.co` (ref `hzekyhcihhddehxndfyg`). The project is not yet visible to the currently connected Supabase MCP identity: `list_projects` only returns the legacy `ewulzprizvbgypzaogez` project, and direct project inspection returned a permission error. Connect/authorize the new project in the Supabase integration before applying any migrations.
-
-`.env.example` points to the new project URL, but its publishable key is intentionally blank. Do not use the legacy project's key. Add the new project's publishable key to local and Vercel environment variables only after access is granted.
+The dedicated Supabase project is verified and connected: `https://zuxywfixaawupwgtbugi.supabase.co` (ref `zuxywfixaawupwgtbugi`). Preflight on 2026-11-15 confirmed 0 public tables, 0 migrations, 0 Auth users and 0 Storage buckets. The modern publishable key is configured in Vercel; no service-role key is used by the browser.
 
 Known blockers from the initial read-only audit:
 
@@ -63,17 +61,16 @@ Known blockers from the initial read-only audit:
 - The cashout routine is executable by authenticated users and needs privilege review.
 - One table has RLS enabled without policies.
 - Existing database rows must be preserved. Do not reset, truncate, or replace the schema.
-- No migration should be applied until a verified backup/export and a reconciled, reviewed migration plan exist.
+- The initial Auth/Roles migration has now been reviewed and deployed to the verified empty target project. Future migrations must be reviewed, backed up and verified before application.
 
 
-- The first database migration is checked into `supabase/migrations/202611150001_auth_roles.sql`, with a deployment and Super Admin bootstrap runbook at `docs/supabase-auth-deployment.md`. It is a reviewed source artifact only and has not been applied to a Supabase project.
+- The first database migration `supabase/migrations/202611150001_auth_roles.sql` has been deployed to the verified target project. Its setup and Super Admin bootstrap procedure is documented at `docs/supabase-auth-deployment.md`.
 
 ## Current integration status — 2026-11-15
 
 - Vercel project `shakh2027` now exists and its deployment metadata identifies the GitHub source as `sardarwalikhano/shakh2027`, branch `main`. The initial production deployment was still in `BUILDING` state at the last inspection.
-- The Vercel project currently has no visible project environment variables, and only its generated `*.vercel.app` domain is attached. The custom domain `daim-post.online` has not been attached or verified.
-- The connected Supabase integration now exposes a different project, ref `zuxywfixaawupwgtbugi`, with zero public tables and zero migration records. This ref does not match the explicitly supplied project URL ref `hzekyhcihhddehxndfyg`. It must not be treated as the target until the project owner confirms it.
-- No Supabase migration has been executed. The legacy database remains untouched.
+- The Vercel project has the Supabase URL, publishable key and site URL configured for production, preview and development. Only `shakh2027.vercel.app` is attached; the custom domain `daim-post.online` has not been attached or verified.
+- Supabase project `zuxywfixaawupwgtbugi` is verified as the target. Its initial Auth/Roles migration has been applied and verified. The legacy database remains untouched.
 
 ## Development constraints
 
