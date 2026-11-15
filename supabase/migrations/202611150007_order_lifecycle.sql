@@ -197,10 +197,15 @@ begin
       raise exception 'Super Admin authorization is required.'
         using errcode = '42501';
     end if;
-
+  elsif p_actor_role = 'customer'::public.app_role then
+    if v_order.customer_id <> (select auth.uid()) then
+      raise exception 'You cannot manage this order.'
+        using errcode = '42501';
+    end if;
     if p_next_status <> 'cancelled'
-       or v_order.status not in ('placed', 'accepted', 'preparing', 'ready_for_pickup') then
-      raise exception 'Super Admin may cancel only orders not yet assigned to a captain.'
+       or v_order.status <> 'placed'
+       or v_order.payment_status <> 'unpaid' then
+      raise exception 'Customers may cancel only their own unpaid placed orders.'
         using errcode = '55000';
     end if;
   else
@@ -236,18 +241,6 @@ begin
       raise exception 'The account role does not match this merchant store.'
         using errcode = '42501';
     end if;
-
-    v_allowed := (
-      (v_order.status = 'placed' and p_next_status in ('accepted', 'cancelled'))
-      or (v_order.status = 'accepted' and p_next_status in ('preparing', 'cancelled'))
-      or (v_order.status = 'preparing' and p_next_status in ('ready_for_pickup', 'cancelled'))
-      or (v_order.status = 'ready_for_pickup' and p_next_status = 'cancelled')
-    );
-
-    if not v_allowed then
-      raise exception 'This order cannot make the requested status transition.'
-        using errcode = '55000';
-    end if;
   end if;
 
   -- Replayed submissions return the original event without repeating stock changes.
@@ -268,6 +261,28 @@ begin
     return v_existing.id;
   end if;
 
+  if p_actor_role = 'super_admin'::public.app_role then
+    if p_next_status <> 'cancelled'
+       or v_order.status not in ('placed', 'accepted', 'preparing', 'ready_for_pickup') then
+      raise exception 'Super Admin may cancel only orders not yet assigned to a captain.'
+        using errcode = '55000';
+    end if;
+  elsif p_actor_role = 'customer'::public.app_role then
+    -- Customer eligibility was validated above.
+    null;
+  else
+    v_allowed := (
+      (v_order.status = 'placed' and p_next_status in ('accepted', 'cancelled'))
+      or (v_order.status = 'accepted' and p_next_status in ('preparing', 'cancelled'))
+      or (v_order.status = 'preparing' and p_next_status in ('ready_for_pickup', 'cancelled'))
+      or (v_order.status = 'ready_for_pickup' and p_next_status = 'cancelled')
+    );
+
+    if not v_allowed then
+      raise exception 'This order cannot make the requested status transition.'
+        using errcode = '55000';
+    end if;
+  end if;
   if p_next_status = 'cancelled' then
     if v_reason is null or char_length(v_reason) < 3 then
       raise exception 'A cancellation reason of at least 3 characters is required.'
@@ -333,6 +348,31 @@ $$;
 
 revoke all on function private.apply_order_transition(uuid, text, text, text, public.app_role)
   from public, anon, authenticated;
+
+
+-- Preserve the M06 customer cancellation API while routing it through the same
+-- audited transition worker. The deterministic key makes retries safe.
+create or replace function public.cancel_cod_order(p_order_id uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if auth.uid() is null then
+    raise exception 'Authentication is required.'
+      using errcode = '28000';
+  end if;
+
+  return private.apply_order_transition(
+    p_order_id,
+    'cancelled',
+    'Cancelled by customer',
+    'customer-cancel:' || p_order_id::text,
+    'customer'::public.app_role
+  );
+end;
+$$;
 
 create or replace function public.merchant_transition_order(
   p_order_id uuid,
