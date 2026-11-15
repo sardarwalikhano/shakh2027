@@ -795,8 +795,11 @@ begin
     )
   );
 
+  -- Start the promotion clock when the reservation is made, not when a draft was created.
   update public.posts
-  set status = 'published', published_at = now()
+  set status = 'published',
+      published_at = now(),
+      valid_from = now()
   where id = p_post_id;
 
   return v_reservation_id;
