@@ -1,51 +1,54 @@
 # SHAKH STORE — Supabase Auth & Roles deployment runbook
 
-## Scope
+## Target project
 
-This runbook deploys the first database migration for the standalone SHAKH STORE application:
+- Project ref: `zuxywfixaawupwgtbugi`
+- API URL: `https://zuxywfixaawupwgtbugi.supabase.co`
+- Vercel production site: `https://shakh2027.vercel.app`
+
+Preflight on 2026-11-15 confirmed: 0 public tables, 0 recorded migrations, 0 Auth users and 0 Storage buckets. This gives a clean starting point; it is not a substitute for maintaining backups after production data begins to accumulate.
+
+## What migration 202611150001_auth_roles.sql creates
 
 - `profiles`: safe profile attributes linked to `auth.users`.
-- `user_roles`: authoritative database-backed roles.
-- New Auth signup trigger: creates a profile and assigns only the default `customer` role.
-- RLS policies: users can read their own profile and roles; Super Admin can read them globally.
-- Users can update only the permitted profile columns. Clients cannot insert, update, or delete role assignments.
+- `user_roles`: authoritative application roles.
+- A private Auth trigger that creates a profile and assigns only the default `customer` role after signup.
+- RLS policies: a user can read and update their own profile and read their own roles; a Super Admin can read these records.
+- Direct role INSERT/UPDATE/DELETE privileges are not granted to client roles.
+- Security-definer helper and trigger functions live in the non-exposed `private` schema, pin `search_path`, and have restricted execute privileges.
 
-No merchant, captain, product, order, commission, wallet, reward, or referral tables are created by this first migration. Those belong in later reviewed migrations.
+This migration does not yet create merchant, captain, store, product, order, commission, wallet, reward, referral or top-up tables.
 
-## Critical project identity check
+## Environment variables
 
-The application currently contains the explicitly supplied URL:
+The current Vercel project `shakh2027` uses these variables:
 
-`https://hzekyhcihhddehxndfyg.supabase.co`
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://zuxywfixaawupwgtbugi.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<SUPABASE_PUBLISHABLE_KEY>
+NEXT_PUBLIC_SITE_URL=https://shakh2027.vercel.app
+```
 
-The connected Supabase integration did not expose that project. A different project, ref `zuxywfixaawupwgtbugi`, is visible and currently reports zero public tables and zero migrations. Do not assume those refs are interchangeable. Do not apply this migration to either project until the project owner confirms the exact target ref and the repository environment is aligned with it.
-
-The legacy project `ewulzprizvbgypzaogez` is not the target and must not be modified.
-
-## Pre-deployment checks
-
-1. Confirm the target project ref in Supabase Dashboard → Project Settings → General.
-2. Confirm that the ref matches `NEXT_PUBLIC_SUPABASE_URL` in the deployment environment.
-3. Export a database backup and confirm that it can be downloaded and restored to a separate recovery project.
-4. Confirm the migration has not already been applied.
-5. Review the SQL migration in `supabase/migrations` before execution.
+Use the modern `sb_publishable_...` key. The legacy `anon` key is public-compatible, but is not needed in this project. Never put a Supabase secret or `service_role` key into a `NEXT_PUBLIC_*` variable.
 
 ## Apply migration
 
-Use Supabase CLI from a trusted local environment linked to the verified target project:
+The migration has been committed to `supabase/migrations/202611150001_auth_roles.sql` and is to be applied to the verified project ref `zuxywfixaawupwgtbugi` only.
+
+For CLI-based deployment from a trusted machine:
 
 ```bash
 supabase login
-supabase link --project-ref <VERIFIED_PROJECT_REF>
+supabase link --project-ref zuxywfixaawupwgtbugi
 supabase migration list
 supabase db push
 ```
 
-Do not substitute the legacy project ref. Do not use a service-role key in browser code or a `NEXT_PUBLIC_*` variable.
+Do not link or push to any legacy project.
 
 ## Bootstrap the first Super Admin
 
-The migration intentionally does not guess which account should be Super Admin. First create the intended administrator account using the normal signup flow and complete email verification. Then, in the SQL Editor of the verified target project, run this one-time privileged statement after replacing the UUID with the verified Auth user ID:
+First create the intended administrator through the regular signup page and verify the email. Then verify the Auth user ID in Supabase Dashboard and execute this one-time SQL in the target project's SQL Editor:
 
 ```sql
 insert into public.user_roles (user_id, role)
@@ -53,36 +56,27 @@ values ('<VERIFIED_AUTH_USER_UUID>', 'super_admin')
 on conflict (user_id, role) do nothing;
 ```
 
-Do not accept a user ID supplied by a browser form as proof of identity. Verify the Auth user in Supabase Dashboard before granting this role.
+Do not accept an ID supplied by a browser form as proof of identity. The first elevated role is granted only by a trusted database administrator.
 
 ## Auth configuration
 
 In Supabase Dashboard → Authentication → URL Configuration:
 
-- Site URL: `https://daim-post.online` after domain ownership and deployment are confirmed.
-- Redirect URL: `https://daim-post.online/auth/callback`.
-- Local development redirect: `http://localhost:3000/auth/callback`.
+- Site URL: `https://shakh2027.vercel.app`
+- Redirect URL: `https://shakh2027.vercel.app/auth/callback`
+- Local development redirect: `http://localhost:3000/auth/callback`
 
-Configure email SMTP and sender identity only with a verified sending domain. Do not use a sender address on an unverified domain.
+Add the custom domain `daim-post.online` and its Auth redirect URL only after DNS and Vercel domain verification are complete.
 
-## Required environment variables
+Configure a verified SMTP sender identity before relying on production confirmation and password recovery email delivery.
 
-```dotenv
-NEXT_PUBLIC_SUPABASE_URL=https://<VERIFIED_PROJECT_REF>.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<PROJECT_PUBLISHABLE_KEY>
-NEXT_PUBLIC_SITE_URL=https://daim-post.online
-```
+## Verification checklist
 
-Only the publishable/anon key belongs in client-visible variables. Keep any Supabase secret or service-role key server-only; this app's current Auth flow does not require one.
-
-## Post-deployment verification
-
-- A new signup creates exactly one `profiles` row and one `customer` role.
-- A user cannot insert or update rows in `user_roles` through the client API.
+- Signup creates exactly one `profiles` row and one `customer` role.
+- A user cannot INSERT, UPDATE or DELETE rows in `user_roles` through the client Data API.
 - A user cannot read another user's profile or role assignments.
 - A non-admin cannot access Super Admin pages.
-- A Super Admin can read profiles and roles.
-- Editing `user_metadata` cannot grant any application role.
-- Auth callback and password recovery redirects resolve only to the expected application origin and local paths.
-
-Run the Supabase Security and Performance Advisors after the migration. Do not proceed to financial tables or wallet RPCs until these checks pass.
+- A Super Admin can read profiles and role assignments.
+- Editing `user_metadata` cannot grant an application role.
+- Auth callback and password recovery routes work with the configured redirect URLs.
+- Supabase Security, Performance and Health Advisors show no unresolved issues introduced by this migration.
