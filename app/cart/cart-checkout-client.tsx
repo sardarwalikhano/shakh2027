@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useSyncExternalStore, type FormEvent } from "react";
 import { checkoutCodOrder } from "./actions";
 import { CART_STORAGE_KEY, CART_REQUEST_KEY, type CartProduct } from "@/components/cart/add-to-cart-button";
 
@@ -10,6 +10,7 @@ type CartLine = CartProduct & { quantity: number };
 type Props = {
   isAuthenticated: boolean;
   success: boolean;
+  locale: string;
   labels: {
     cartTitle: string;
     cartDescription: string;
@@ -33,51 +34,64 @@ type Props = {
   };
 };
 
-function formatIqd(value: number, locale: string) {
-  return `${value.toLocaleString(locale)} IQD`;
+function subscribeCart(callback: () => void) {
+  window.addEventListener("shakh-cart-updated", callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener("shakh-cart-updated", callback);
+    window.removeEventListener("storage", callback);
+  };
 }
 
-export function CartCheckoutClient({ isAuthenticated, success, labels }: Props) {
-  const [items, setItems] = useState<CartLine[]>([]);
-  const [requestKey, setRequestKey] = useState("");
+function getCartSnapshot() {
+  return window.localStorage.getItem(CART_STORAGE_KEY) ?? "[]";
+}
+
+function getRequestKeySnapshot() {
+  return window.localStorage.getItem(CART_REQUEST_KEY) ?? "";
+}
+
+function parseCart(raw: string): CartLine[] {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item): item is CartLine =>
+      item && typeof item === "object"
+      && typeof item.productId === "string"
+      && typeof item.storeId === "string"
+      && typeof item.storeName === "string"
+      && typeof item.name === "string"
+      && typeof item.priceIqd === "number"
+      && Number.isFinite(item.priceIqd)
+      && typeof item.unitLabel === "string"
+      && typeof item.imagePath === "string"
+      && (item.stockQuantity === null || typeof item.stockQuantity === "number")
+      && typeof item.quantity === "number"
+      && Number.isFinite(item.quantity)
+      && item.quantity > 0
+    );
+  } catch {
+    return [];
+  }
+}
+
+function formatIqd(value: number, locale: string) {
+  const intlLocale = locale === "ku" ? "ku-IQ" : locale === "ar" ? "ar-IQ" : "en-IQ";
+  return `${value.toLocaleString(intlLocale)} IQD`;
+}
+
+export function CartCheckoutClient({ isAuthenticated, success, locale, labels }: Props) {
+  const rawCart = useSyncExternalStore(subscribeCart, getCartSnapshot, () => "[]");
+  const requestKey = useSyncExternalStore(subscribeCart, getRequestKeySnapshot, () => "");
   const itemsInput = useRef<HTMLInputElement>(null);
-  const [locale, setLocale] = useState("en-IQ");
+  const requestKeyInput = useRef<HTMLInputElement>(null);
+  const items = useMemo(() => parseCart(rawCart), [rawCart]);
 
   useEffect(() => {
-    setLocale(document.documentElement.lang === "ku" ? "ku-IQ" : document.documentElement.lang === "ar" ? "ar-IQ" : "en-IQ");
-    if (success) {
-      window.localStorage.removeItem(CART_STORAGE_KEY);
-      window.localStorage.removeItem(CART_REQUEST_KEY);
-      setItems([]);
-      setRequestKey("");
-      window.dispatchEvent(new Event("shakh-cart-updated"));
-      return;
-    }
-    let storedRequestKey = window.localStorage.getItem(CART_REQUEST_KEY);
-    if (!storedRequestKey || !/^[0-9a-f-]{36}$/i.test(storedRequestKey)) {
-      storedRequestKey = window.crypto.randomUUID();
-      window.localStorage.setItem(CART_REQUEST_KEY, storedRequestKey);
-    }
-    setRequestKey(storedRequestKey);
-    try {
-      const raw = window.localStorage.getItem(CART_STORAGE_KEY);
-      const parsed: unknown = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(parsed)) {
-        setItems([]);
-        return;
-      }
-      const safe = parsed.filter((item): item is CartLine =>
-        item && typeof item === "object"
-        && typeof item.productId === "string"
-        && typeof item.storeId === "string"
-        && typeof item.name === "string"
-        && typeof item.priceIqd === "number"
-        && typeof item.quantity === "number"
-      );
-      setItems(safe);
-    } catch {
-      setItems([]);
-    }
+    if (!success) return;
+    window.localStorage.removeItem(CART_STORAGE_KEY);
+    window.localStorage.removeItem(CART_REQUEST_KEY);
+    window.dispatchEvent(new Event("shakh-cart-updated"));
   }, [success]);
 
   const subtotal = useMemo(
@@ -86,10 +100,8 @@ export function CartCheckoutClient({ isAuthenticated, success, labels }: Props) 
   );
 
   function persist(next: CartLine[]) {
-    setItems(next);
     window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(next));
     const nextRequestKey = window.crypto.randomUUID();
-    setRequestKey(nextRequestKey);
     window.localStorage.setItem(CART_REQUEST_KEY, nextRequestKey);
     window.dispatchEvent(new Event("shakh-cart-updated"));
   }
@@ -107,7 +119,7 @@ export function CartCheckoutClient({ isAuthenticated, success, labels }: Props) 
   }
 
   function prepareCheckout(event: FormEvent<HTMLFormElement>) {
-    if (!itemsInput.current || items.length === 0) {
+    if (!itemsInput.current || !requestKeyInput.current || items.length === 0) {
       event.preventDefault();
       return;
     }
@@ -115,6 +127,11 @@ export function CartCheckoutClient({ isAuthenticated, success, labels }: Props) 
       product_id: item.productId,
       quantity: item.quantity,
     })));
+    if (!requestKeyInput.current.value) {
+      const nextRequestKey = window.crypto.randomUUID();
+      requestKeyInput.current.value = nextRequestKey;
+      window.localStorage.setItem(CART_REQUEST_KEY, nextRequestKey);
+    }
   }
 
   if (success) {
@@ -177,7 +194,7 @@ export function CartCheckoutClient({ isAuthenticated, success, labels }: Props) 
           {isAuthenticated ? (
             <form action={checkoutCodOrder} className="cart-checkout-form" onSubmit={prepareCheckout}>
               <input ref={itemsInput} type="hidden" name="items" />
-              <input type="hidden" name="requestKey" value={requestKey} />
+              <input ref={requestKeyInput} type="hidden" name="requestKey" defaultValue={requestKey} />
               <label>
                 {labels.customerName}
                 <input name="customerName" required minLength={2} maxLength={120} />
