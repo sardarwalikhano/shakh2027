@@ -124,7 +124,9 @@ The app's `/auth/callback` route exchanges the PKCE authorization code for a coo
 - Resend domain `mail.daim-post.online`: sending enabled.
 - Resend DKIM TXT and both SPF CNAME records: verified.
 - Resend inbound MX record: pending. MX is for receiving mail and is not required for Supabase Auth outbound mail.
-- Supabase Custom SMTP settings were reported saved by the operator. Auth logs showed a configuration reload at 08:51 UTC. The last observed password recovery attempt before that save failed with `535 "Invalid username"`; no post-save password-recovery request was present in the logs at the time of the subsequent inspection. A fresh end-to-end test is still required.
+- Supabase Custom SMTP settings were reported saved by the operator. Auth logs showed a configuration reload after the save. The earlier `535 "Invalid username"` failure was followed by a successful password-recovery request on 2026-11-15 at 11:01:19 UTC (HTTP 200).
+- Resend recorded the corresponding `Reset your password` message as `delivered` at 11:01:18 UTC. The inspected message used Supabase's `/auth/v1/verify` endpoint with `type=recovery` and a `redirect_to` pointing to `https://www.daim-post.online/auth/callback?next=/reset-password`; it contained no Vercel deployment URL. The recipient has not yet completed the final click-through and password update.
+- Earlier reset links clicked around 08:57 UTC returned `One-time token not found`; do not reuse those older or already-clicked links. Use the newest message and click its link once.
 - SMTP credentials must remain in Supabase's private SMTP settings. Never store the Resend API key in GitHub, in a `NEXT_PUBLIC_*` variable, or in client-side code.
 
 ## End-to-end verification checklist
