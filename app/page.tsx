@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const highlights = [
   { number: "01", title: "فرۆشگاکان", detail: "بازاڕێک بۆ فرۆشگاکانی شاخ و بازرگانەکان" },
   { number: "02", title: "داواکارییەکان", detail: "ڕێڕەوی ڕوونی کڕین، ئامادەکردن و گەیاندن" },
@@ -8,10 +10,10 @@ export default function HomePage() {
   return (
     <main className="landing">
       <header className="topbar">
-        <a className="brand" href="/" aria-label="SHAKH STORE">
+        <Link className="brand" href="/" aria-label="SHAKH STORE">
           <span className="brand-mark">ش</span>
           <span><strong>SHAKH</strong><small>STORE</small></span>
-        </a>
+        </Link>
         <span className="market-label">بازاڕی دیجیتاڵی عێراق</span>
       </header>
       <section className="hero">
@@ -20,7 +22,7 @@ export default function HomePage() {
           <h1>بازاڕێکی نوێ،<br /><em>ئەزموونێکی ئاسان.</em></h1>
           <p>شوێنێکی یەکگرتوو بۆ بینینی بەرهەمەکان، داواکردن و بەڕێوەبردنی فرۆشگا و گەیاندن؛ بە شێوەیەکی ڕێکخراو و پارێزراو.</p>
           <div className="hero-actions">
-            <a className="primary-action" href="/login">چوونەژوورەوە <span>←</span></a>
+            <Link className="primary-action" href="/login">چوونەژوورەوە <span>←</span></Link>
             <span className="currency-note">IQD · دیناری عێراقی</span>
           </div>
         </div>
