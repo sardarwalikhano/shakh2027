@@ -581,6 +581,6 @@ comment on table public.order_items is
 comment on table public.store_delivery_settings is
   'Super Admin controlled per-store delivery fee configuration. Checkout is blocked until an active fee is configured.';
 comment on function public.create_cod_checkout(uuid, jsonb, text, text, text, text) is
-  'Validates current published product prices, store delivery configuration and stock in one transaction; creates one COD order per store and decrements tracked stock atomically.';
+  'Idempotently validates current published product prices, store delivery configuration and stock in one transaction; creates one COD order per store and decrements tracked stock atomically.';
 comment on function public.cancel_cod_order(uuid) is
   'Allows a customer to cancel only their own unpaid placed order and restores tracked stock in the same transaction.';
