@@ -64,13 +64,13 @@ Known blockers from the initial read-only audit:
 - The initial Auth/Roles migration has now been reviewed and deployed to the verified empty target project. Future migrations must be reviewed, backed up and verified before application.
 
 
-- The first database migration `supabase/migrations/202611150001_auth_roles.sql` has been deployed to the verified target project. Its setup and Super Admin bootstrap procedure is documented at `docs/supabase-auth-deployment.md`.
+- The initial Auth/Roles migration `supabase/migrations/202611150001_auth_roles.sql` and the follow-up index migration `supabase/migrations/202611150002_user_roles_assigned_by_index.sql` have been deployed and verified on the target project. Setup and Super Admin bootstrap steps are documented at `docs/supabase-auth-deployment.md`.
 
 ## Current integration status — 2026-11-15
 
 - Vercel project `shakh2027` now exists and its deployment metadata identifies the GitHub source as `sardarwalikhano/shakh2027`, branch `main`. The initial production deployment was still in `BUILDING` state at the last inspection.
 - The Vercel project has the Supabase URL, publishable key and site URL configured for production, preview and development. Only `shakh2027.vercel.app` is attached; the custom domain `daim-post.online` has not been attached or verified.
-- Supabase project `zuxywfixaawupwgtbugi` is verified as the target. Its initial Auth/Roles migration has been applied and verified. The legacy database remains untouched.
+- Supabase project `zuxywfixaawupwgtbugi` is verified as the target. Its Auth/Roles and foreign-key index migrations have been applied and verified. The legacy database remains untouched.
 
 ## Development constraints
 
