@@ -9,7 +9,7 @@ M07 is the next sequential phase after M06 on branch \`feat/m07-order-lifecycle\
 - Super Admin order oversight at \`/dashboard/admin/orders\` and a restricted administrative cancellation action.
 - An append-only \`public.order_status_events\` history with the actor, role, prior status, next status, reason and timestamp.
 - A database trigger that records the initial \`placed\` event within the same transaction as every M06 checkout order.
-- Backfill of the initial placed event for existing orders when M07 is applied.
+- Backfill of the initial placed event for existing orders when M07 is applied, plus a historical cancellation event for orders already cancelled by M06 before audit logging existed.
 - Customer visibility of the status history in \`/dashboard/customer/orders\`.
 - Atomic restoration of tracked inventory on a valid merchant, Super Admin or customer cancellation.
 - Request-key idempotency and an order-row lock so retrying a cancellation cannot restore stock twice.
@@ -65,7 +65,7 @@ All SECURITY DEFINER functions pin \`search_path\`. Internal functions are not e
 8. The legacy M06 customer cancellation RPC writes a status event after M07 replacement.
 9. A cancellation reason shorter than 3 characters or longer than 500 characters is rejected.
 10. Every new checkout order has exactly one initial \`placed\` event in the same transaction.
-11. Existing M06 orders are backfilled with one initial event; rerunning the insert does not duplicate it.
+11. Existing M06 orders are backfilled with one initial event; pre-M07 customer cancellations also receive a second historical cancellation event; rerunning either insert does not duplicate it.
 12. Customers, store owners and Super Admin can read only the history of orders visible to them.
 13. Anonymous users cannot read order or status-history rows.
 14. Direct client INSERT/UPDATE/DELETE on \`order_status_events\` is denied.
