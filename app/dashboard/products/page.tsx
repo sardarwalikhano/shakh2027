@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuthContext } from "@/lib/auth/context";
 import { getMessages } from "@/lib/i18n/locale";
-import { isAppRole, isStoreType, PRODUCT_CATEGORIES, type ProductCategory, type StoreType } from "@/lib/domain/roles";
+import { isStoreType, type ProductCategory, type StoreType } from "@/lib/domain/roles";
 import { categoriesForStore } from "@/lib/domain/catalog";
 import { archiveStoreProduct, createStoreProduct, updateStoreProduct } from "./actions";
 
