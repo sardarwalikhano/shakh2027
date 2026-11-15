@@ -58,6 +58,27 @@ on conflict (user_id, role) do nothing;
 
 Do not accept an ID supplied by a browser form as proof of identity. The first elevated role is granted only by a trusted database administrator.
 
+## Resend SMTP configuration
+
+Resend has a sending-enabled domain `mail.daim-post.online` in region `ap-northeast-1`. DKIM and both SPF CNAME records are verified. The MX record for inbound receiving is pending; inbound receiving is not required for Supabase Auth outbound messages.
+
+A domain-restricted, sending-access-only Resend API key has been created for SHAKH STORE. Enter it directly in the Supabase Dashboard and do not commit it to Git or place it in any `NEXT_PUBLIC_*` variable.
+
+In Supabase Dashboard → Authentication → SMTP Settings, enable Custom SMTP and use:
+
+| Setting | Value |
+| --- | --- |
+| Host | `smtp.resend.com` |
+| Port | `465` |
+| Username | `resend` |
+| Password | The newly created SHAKH STORE Resend API key |
+| Sender email | `no-reply@mail.daim-post.online` |
+| Sender name | `SHAKH STORE` |
+
+Port 465 is the recommended implicit-TLS SMTP endpoint for Resend. Port 587 is an alternative with STARTTLS; do not mix the security mode for these ports.
+
+After saving, send a password-reset test and inspect the Resend email logs for delivery, bounce or rejection. Keep email confirmations enabled; do not turn on auto-confirm merely to bypass SMTP testing.
+
 ## Auth configuration
 
 In Supabase Dashboard → Authentication → URL Configuration:
