@@ -80,17 +80,6 @@ function statusLabel(status: PostRow["status"], t: Awaited<ReturnType<typeof get
   return t.postStatusDraft;
 }
 
-function typeLabel(type: PostRow["post_type"], t: Awaited<ReturnType<typeof getMessages>>["messages"]) {
-  return type === "promotion" ? t.postTypePromotion : t.postTypeAnnouncement;
-}
-
-function statusLabel(status: PostRow["status"], t: Awaited<ReturnType<typeof getMessages>>["messages"]) {
-  if (status === "published") return t.postStatusPublished;
-  if (status === "paused") return t.postStatusPaused;
-  if (status === "archived") return t.postStatusArchived;
-  return t.postStatusDraft;
-}
-
 export default async function PostsManagementPage({ searchParams }: Props) {
   const context = await requireAuthContext();
   if (!context.roles.some((role) => MANAGER_ROLES.includes(role as (typeof MANAGER_ROLES)[number]))) {
