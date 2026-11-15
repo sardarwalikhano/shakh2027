@@ -40,7 +40,7 @@ export default async function AdminDeliveryPage({ searchParams }: Props) {
     ? t.checkoutSchemaMissing
     : params.error === "forbidden" ? t.checkoutForbidden
     : params.error === "config" ? t.checkoutConfigError
-    : params.error === "invalid" ? t.checkoutInvalidCart
+    : params.error === "invalid" ? t.invalidCart
     : params.error ? t.checkoutFailed
     : null;
 
