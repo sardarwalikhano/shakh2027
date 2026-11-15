@@ -5,7 +5,7 @@ This roadmap tracks the approved marketplace requirements. A phase is marked com
 | Phase | Workstream | Status | Evidence / dependency |
 | --- | --- | --- | --- |
 | M00 | Project foundation, infrastructure, design system, CI and PWA shell | Complete | Next.js/TypeScript foundation, Vercel production project, canonical domain, GitHub CI, localization and offline shell |
-| M01 | Identity, authentication, profile and database-backed roles | Complete foundation | Signup, sign-in, scanner-safe email confirmation, password recovery and update passed end-to-end; profiles/user_roles migrations applied; enable leaked-password protection before launch |
+| M01 | Identity, authentication, profile and database-backed roles | Complete foundation | Signup, sign-in, scanner-safe email confirmation, password recovery and update passed end-to-end; profiles/user_roles migrations applied; shared RLS-protected profile editing is being added without new DDL; enable leaked-password protection before launch |
 | M02 | Shared UI and role-aware dashboard navigation | Complete | Shared responsive dashboard shell merged to main; Super Admin, merchant, captain and customer links come from database roles |
 | M03 | Merchant onboarding and stores | Code merged; production DB pending | Merchant application, platform-owned SHAKH STORE, Super Admin review RPCs and review audit history; migration requires a restorable backup and non-production security test |
 | M04 | Product catalog and publishing | Code merged; production DB pending | Store-scoped product CRUD, IQD pricing, validated product image upload, category enforcement and public catalog; depends on M03 and separate database migration |

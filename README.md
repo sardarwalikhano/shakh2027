@@ -46,7 +46,7 @@ Never commit .env.local, Supabase secret keys, or service-role keys.
 - Production password recovery passed an end-to-end test on 2026-11-15: Resend marked the TokenHash email delivered; Supabase verified the token by explicit POST, updated the password and accepted a subsequent sign-in with the new password.
 - Auth email templates use a scanner-safe TokenHash confirmation interstitial at `/auth/confirm`. Mail scanners can prefetch the page without consuming the one-time token.
 - Server-side session validation and database-backed role checks use `profiles` and `user_roles`; roles are not read from user-editable metadata.
-- Role dashboard routes exist for Super Admin, merchants, captains and customers.
+- Role dashboard routes exist for Super Admin, merchants, captains and customers. A shared profile page lets every signed-in user update their own name and phone through the RLS-protected profile row; email is read-only in this flow.
 - PWA manifest, service-worker registration, static-asset caching and an offline fallback are included. Authenticated pages and API responses are excluded from service-worker caching.
 - GitHub Actions runs TypeScript checks, ESLint and a production build. Vercel production deployment and custom domains are configured and verified.
 
