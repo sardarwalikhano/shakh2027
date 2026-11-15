@@ -19,7 +19,7 @@ export default async function DashboardPage() {
         <Link className="brand" href="/">
           <span className="brand-mark">ش</span>
           <span><strong>SHAKH</strong><small>STORE</small></span>
-        </a>
+        </Link>
         <form action={signOut}><button className="signout-button" type="submit">چوونەدەرەوە</button></form>
       </header>
       <section className="dashboard-welcome">
