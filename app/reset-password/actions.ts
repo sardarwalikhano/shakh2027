@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export async function updatePassword(formData: FormData) {
   const password = String(formData.get("password") ?? "");
@@ -10,6 +11,8 @@ export async function updatePassword(formData: FormData) {
   if (password.length < 12 || password.length > 128 || password !== confirmation) {
     redirect("/reset-password?error=password");
   }
+
+  if (!isSupabaseConfigured()) redirect("/reset-password?error=config");
 
   const supabase = await createClient();
   const { data, error: claimsError } = await supabase.auth.getClaims();
