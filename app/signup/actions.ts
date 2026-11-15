@@ -23,7 +23,8 @@ export async function signUp(formData: FormData) {
 
   const supabase = await createClient();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const emailRedirectTo = new URL("/auth/callback", siteUrl).toString();
+  const emailRedirectTo = new URL("/auth/confirm", siteUrl);
+  emailRedirectTo.searchParams.set("next", "/dashboard");
 
   let signupFailed = false;
   try {
@@ -31,7 +32,7 @@ export async function signUp(formData: FormData) {
       email,
       password,
       options: {
-        emailRedirectTo,
+        emailRedirectTo: emailRedirectTo.toString(),
         data: { full_name: fullName },
       },
     });
