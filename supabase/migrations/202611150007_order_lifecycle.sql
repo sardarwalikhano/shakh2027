@@ -202,12 +202,6 @@ begin
       raise exception 'You cannot manage this order.'
         using errcode = '42501';
     end if;
-    if p_next_status <> 'cancelled'
-       or v_order.status <> 'placed'
-       or v_order.payment_status <> 'unpaid' then
-      raise exception 'Customers may cancel only their own unpaid placed orders.'
-        using errcode = '55000';
-    end if;
   else
     if p_actor_role not in (
       'restaurant'::public.app_role,
@@ -268,8 +262,12 @@ begin
         using errcode = '55000';
     end if;
   elsif p_actor_role = 'customer'::public.app_role then
-    -- Customer eligibility was validated above.
-    null;
+    if p_next_status <> 'cancelled'
+       or v_order.status <> 'placed'
+       or v_order.payment_status <> 'unpaid' then
+      raise exception 'Customers may cancel only their own unpaid placed orders.'
+        using errcode = '55000';
+    end if;
   else
     v_allowed := (
       (v_order.status = 'placed' and p_next_status in ('accepted', 'cancelled'))
