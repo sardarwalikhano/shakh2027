@@ -433,3 +433,49 @@ h1 em { color: var(--apricot-deep); font-style: normal; }
   .profile-summary-card,
   .profile-form-panel { padding: 19px; }
 }
+
+
+/* M05 public marketplace posts */
+.public-posts-page { padding-bottom: 64px; }
+.public-post-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.public-post-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 14px 38px rgba(42,31,24,.035);
+}
+.public-post-card > img {
+  display: block;
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  background: #f7eee7;
+}
+.public-post-card-body { display: grid; gap: 12px; padding: 20px; }
+.public-post-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 11px; }
+.public-post-card h2 { margin: 0; font-size: 19px; line-height: 1.55; overflow-wrap: anywhere; }
+.public-post-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.9; white-space: pre-wrap; overflow-wrap: anywhere; }
+.public-post-reward {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.public-post-reward > div { display: grid; gap: 5px; min-width: 0; }
+.public-post-reward span,
+.public-post-reward small { color: var(--muted); font-size: 10px; }
+.public-post-reward strong { font-size: 13px; overflow-wrap: anywhere; }
+@media (max-width: 680px) {
+  .public-post-grid { grid-template-columns: 1fr; }
+  .public-post-card > img { height: 210px; }
+  .public-post-card-body { padding: 16px; }
+}
