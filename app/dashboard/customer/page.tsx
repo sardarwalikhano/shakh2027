@@ -1,21 +1,23 @@
 import { requireAnyRole } from "@/lib/auth/context";
+import { getMessages } from "@/lib/i18n/locale";
 
 export const dynamic = "force-dynamic";
 
 export default async function CustomerDashboardPage() {
   await requireAnyRole(["customer"]);
+  const { messages: t } = await getMessages();
 
   return (
     <main className="dashboard-page">
       <section className="dashboard-welcome">
-        <span className="eyebrow"><i /> ناوچەی کڕیار</span>
-        <h1>بەخێربێیت بۆ <em>بازاڕ</em></h1>
-        <p>بەڕێوەبردنی ئۆردەر، بەدواداچوونی گەیاندن و بەڕێوەبردنی خەڵاتەکان.</p>
+        <span className="eyebrow"><i /> {t.customerEyebrow}</span>
+        <h1>{t.customerTitle}</h1>
+        <p>{t.customerDescription}</p>
         <div className="account-card">
-          <span>پارەدانی ئۆردەر</span>
-          <strong>Cash on Delivery</strong>
-          <span>خەڵات و Referral</span>
-          <strong>خەڵات تەنها دوای تەواوبوونی فرۆشتنی گونجاو هەژمار دەکرێت.</strong>
+          <span>{t.orderPayment}</span>
+          <strong>{t.cashOnDelivery}</strong>
+          <span>{t.rewardReferral}</span>
+          <strong>{t.rewardDescription}</strong>
         </div>
       </section>
     </main>
