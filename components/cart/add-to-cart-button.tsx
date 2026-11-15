@@ -14,6 +14,7 @@ export type CartProduct = {
 };
 
 export const CART_STORAGE_KEY = "shakh-store-cart-v1";
+export const CART_REQUEST_KEY = "shakh-store-checkout-request-v1";
 
 type Props = { product: CartProduct; label: string; addedLabel: string };
 
@@ -40,6 +41,8 @@ export function AddToCartButton({ product, label, addedLabel }: Props) {
         CART_STORAGE_KEY,
         JSON.stringify(cart.filter((item) => item.quantity > 0)),
       );
+      const requestKey = window.crypto.randomUUID();
+      window.localStorage.setItem(CART_REQUEST_KEY, requestKey);
       window.dispatchEvent(new Event("shakh-cart-updated"));
       setAdded(true);
       window.setTimeout(() => setAdded(false), 1400);
