@@ -33,6 +33,7 @@ export default async function DashboardLayout({
     addItem({ href: "/dashboard/products", label: t.productCatalogLink });
     addItem({ href: "/dashboard/posts", label: t.postsLink });
     addItem({ href: "/dashboard/admin/delivery", label: t.adminDeliveryLink });
+    addItem({ href: "/dashboard/admin/orders", label: t.orderManagementLink });
   }
 
   if (
@@ -44,6 +45,7 @@ export default async function DashboardLayout({
     addItem({ href: "/dashboard/merchant", label: t.merchantTitle });
     addItem({ href: "/dashboard/merchant/store", label: t.merchantStoreLink });
     addItem({ href: "/dashboard/products", label: t.productCatalogLink });
+    addItem({ href: "/dashboard/merchant/orders", label: t.orderManagementLink });
   }
 
   if (roles.has("captain")) {
