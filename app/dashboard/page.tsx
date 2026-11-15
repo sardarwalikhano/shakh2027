@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { ROLE_DEFAULT_PATH } from "@/lib/domain/roles";
 import { getAuthContext } from "@/lib/auth/context";
 import { getMessages } from "@/lib/i18n/locale";
-import { signOut } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -17,13 +16,6 @@ export default async function DashboardPage() {
 
   return (
     <main className="dashboard-page">
-      <header className="dashboard-topbar">
-        <Link className="brand" href="/">
-          <span className="brand-mark">ش</span>
-          <span><strong>SHAKH</strong><small>STORE</small></span>
-        </Link>
-        <form action={signOut}><button className="signout-button" type="submit">{t.signOut}</button></form>
-      </header>
       <section className="dashboard-welcome">
         <span className="eyebrow"><i /> {t.dashboardEyebrow}</span>
         <h1>{t.dashboardWelcome} {context.fullName ?? ""} <em>SHAKH STORE</em></h1>
