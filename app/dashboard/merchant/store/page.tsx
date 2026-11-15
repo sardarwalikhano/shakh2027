@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireAnyRole } from "@/lib/auth/context";
 import { getMessages } from "@/lib/i18n/locale";
@@ -81,17 +80,6 @@ export default async function MerchantStorePage({ searchParams }: Props) {
 
   return (
     <main className="dashboard-page">
-      <header className="dashboard-topbar">
-        <Link className="brand" href="/dashboard/merchant">
-          <span className="brand-mark">ش</span>
-          <span><strong>SHAKH</strong><small>STORE</small></span>
-        </Link>
-        <nav className="dashboard-nav" aria-label={t.merchantTitle}>
-          <Link href="/dashboard/merchant">{t.merchantTitle}</Link>
-          <Link href="/dashboard">{t.dashboardEyebrow}</Link>
-        </nav>
-      </header>
-
       <section className="dashboard-section">
         <span className="eyebrow"><i /> {t.merchantEyebrow}</span>
         <h1 className="section-title">{t.storePageTitle}</h1>
