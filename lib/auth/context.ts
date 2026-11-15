@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { isAppRole, type AppRole } from "@/lib/domain/roles";
 
 export type AuthContext = {
@@ -10,6 +11,7 @@ export type AuthContext = {
 };
 
 export async function getAuthContext(): Promise<AuthContext | null> {
+  if (!isSupabaseConfigured()) return null;
   const supabase = await createClient();
   const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
 
