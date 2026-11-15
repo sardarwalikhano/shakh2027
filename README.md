@@ -46,6 +46,7 @@ Never commit .env.local, Supabase secret keys, or service-role keys.
 - Production password recovery passed an end-to-end test on 2026-11-15: Resend marked the TokenHash email delivered; Supabase verified the token by explicit POST, updated the password and accepted a subsequent sign-in with the new password.
 - Auth email templates use a scanner-safe TokenHash confirmation interstitial at `/auth/confirm`. Mail scanners can prefetch the page without consuming the one-time token.
 - Server-side session validation and database-backed role checks use `profiles` and `user_roles`; roles are not read from user-editable metadata.
+- A shared profile page has been merged into `main`; all signed-in roles can update their own full name and optional phone through own-row RLS. Email and roles remain read-only. The Vercel production deployment for this commit is still building.
 - Role dashboard routes exist for Super Admin, merchants, captains and customers. A shared profile page lets every signed-in user update their own name and phone through the RLS-protected profile row; email is read-only in this flow.
 - PWA manifest, service-worker registration, static-asset caching and an offline fallback are included. Authenticated pages and API responses are excluded from service-worker caching.
 - GitHub Actions runs TypeScript checks, ESLint and a production build. Vercel production deployment and custom domains are configured and verified.
@@ -84,7 +85,7 @@ The previous `docs/database-audit.md` is a historical read-only audit of the leg
 
 ## Production integration
 
-- GitHub repository: `sardarwalikhano/shakh2027`, branch `main`. M02, M03 and M04 application code are merged. M03/M04 production database migrations remain gated on backup and non-production validation.
+- GitHub repository: `sardarwalikhano/shakh2027`, branch `main`. M01 profile management, M02 navigation, M03 store onboarding and M04 catalog application code are merged. The latest profile deployment is being built; M03/M04 production database migrations remain gated on backup and non-production validation.
 - Vercel project: `shakh2027`.
 - Canonical production URL: `https://www.daim-post.online`; `https://daim-post.online` redirects to `www`.
 - Vercel project environment variables include the Supabase URL, publishable key and canonical site URL for production, preview and development.
