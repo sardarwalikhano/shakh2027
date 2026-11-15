@@ -55,10 +55,12 @@ Never commit .env.local, Supabase secret keys, or service-role keys.
 
 - M00 project foundation and M01 Identity/Auth foundations are deployed.
 - M02 shared role-aware dashboard navigation is merged into `main` and deployed to Vercel. The shared shell displays database-authorized links for Super Admin, merchants, captains and customers.
+- M05 posts/promotions implementation is on `feat/m05-posts-promotions`; a duplicate helper declaration was removed and promotion validity now starts at publication/reservation time. The public posts feed and three-locale links have been added on the feature branch. CI and review are pending; do not treat this feature as production-live.
 - M03 Merchant Store onboarding code is merged into `main` through PR #1. It adds role-validated merchant applications, the dedicated platform-owned SHAKH STORE row, atomic Super Admin approval/rejection RPCs, review audit events, RLS and the merchant/admin pages.
 - The M03 migration is additive but is not yet applied to production. Production DDL is gated on a restorable backup and a non-production security test.
 - M04 Product Catalog code has been merged into `main` through PR #3. It adds IQD-priced products, role/store/category checks, validated product image uploads, merchant/admin catalog management and a public catalog. Its migration depends on M03 and is not applied to production. The UI displays a setup state until M03/M04 database migrations are safely deployed.
-- Posts/rewards, checkout/orders, captain delivery, wallet/ledger, commission settlement, referrals, top-ups and cashout workflows remain future implementation work. The financial rules in this README are approved requirements, not evidence that those workflows are already live.
+- M05 posts and promotions code is being validated on `feat/m05-posts-promotions`. It includes merchant/Super Admin post management, a public published-post feed, zero-balance merchant wallet provisioning, immutable ledger schema and atomic promotion-budget reservation/release RPCs. It has not been merged or deployed; its SQL migration is not applied.
+- Wallet top-ups, reward settlement after delivered orders, order processing, separate order-level merchant commission settlement, captain delivery, customer wallet operations, referrals and cashout remain later implementation phases. The financial rules in this README are approved requirements, not evidence that those workflows are already live.
 
 ## Database status
 
