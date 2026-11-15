@@ -152,8 +152,10 @@ Resend open/click tracking must remain disabled so external link rewriting does 
 - A previous password-recovery email was delivered on 2026-11-15 at 11:01:18 UTC using the former `mail.daim-post.online` configuration. That test is not proof the current configuration is valid.
 - A later password-recovery request on 2026-11-15 at 12:01:47 UTC failed with SMTP 550: `The associated domain with your API key is not verified`. This identified a sender/API-key mismatch: Supabase was still using `no-reply@mail.daim-post.online` and an API key scoped to the former domain, while the active verified Resend domain is `shakh.daim-post.online`.
 - A replacement Resend key with `sending_access` permission restricted to `shakh.daim-post.online` was created. On 2026-11-15 the operator reported saving the new key into Supabase SMTP Password and changing Sender email to `shakh@shakh.daim-post.online` and Sender name to `SHAKH`.
-- Supabase Auth logs show a configuration reload at 2026-11-15 12:28:15 UTC after the operator's save. No new recovery request or Resend email was present in the 12:15–12:45 UTC check window, so the new credential has not yet been validated by a fresh send.
-- Next test: request a new password recovery email, verify Resend status `delivered` and the current sender, then click that newest link once, confirm it reaches `/reset-password`, update the password, sign out and sign in with the new password.
+- Supabase Auth logs show a configuration reload at 2026-11-15 12:28:15 UTC after the operator's save.
+- On 2026-11-15 at 13:03:48 UTC, a new recovery email was accepted and Resend recorded it as `delivered`. The inspected body used the scanner-safe direct link `/auth/confirm?token_hash=…&type=recovery`, confirming that the Reset Password template update was active.
+- Supabase Auth logs then recorded successful POST verification at 13:04:13 UTC (HTTP 200), successful password modification at 13:04:37 UTC (HTTP 200), and successful password login at 13:04:59 UTC (HTTP 200). This is a successful end-to-end password recovery and new-password sign-in test.
+- Earlier recovery attempts using `{{ .ConfirmationURL }}` showed repeated `One-time token not found` responses. Both production email templates have now been reported saved with the scanner-safe TokenHash links above.
 - SMTP credentials must remain in Supabase's private SMTP settings. Never store the Resend API key in GitHub, in a `NEXT_PUBLIC_*` variable, or in client-side code.
 
 ## End-to-end verification checklist
@@ -163,7 +165,7 @@ Resend open/click tracking must remain disabled so external link rewriting does 
 3. Verify that the new Auth user has exactly one `profiles` row and the default `customer` role. Do not promote a test account to Super Admin.
 4. Request a password reset from `https://www.daim-post.online/forgot-password`.
 5. In Resend, confirm the fresh message's status is delivered (not just accepted or queued); inspect bounce/failed status if it is not delivered.
-6. Open the newest reset email. It must route through `https://www.daim-post.online/auth/callback` and then reach `/reset-password`.
+6. Open the newest reset email. It must open `https://www.daim-post.online/auth/confirm` with `token_hash` and `type=recovery`; press the on-page confirmation button, then it must reach `/reset-password`.
 7. Set a new password, sign out, and sign in using the new password. Confirm the old password no longer works.
 8. Repeat in a second browser/private session to catch cookie and callback issues.
 
@@ -177,5 +179,5 @@ Do not use an old email or previously clicked recovery link for the verification
 - A non-admin cannot access Super Admin pages.
 - A Super Admin can read profiles and role assignments.
 - Editing `user_metadata` cannot grant an application role.
-- Auth callback and password recovery routes work with the configured redirect URLs.
+- The scanner-safe Auth confirmation route accepts TokenHash only after explicit user submission; password recovery has passed end-to-end (email delivered, POST verification, password modified, new-password login). Signup confirmation still requires a separate new-account end-to-end test.
 - Supabase Security and Health Advisors return no findings. Performance Advisor reports only unused-index notices while the new tables have no production traffic; the missing foreign-key index finding has been resolved.
