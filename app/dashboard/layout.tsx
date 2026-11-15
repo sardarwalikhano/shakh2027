@@ -30,6 +30,7 @@ export default async function DashboardLayout({
     addItem({ href: "/dashboard/admin", label: t.adminTitle });
     addItem({ href: "/dashboard/admin/stores", label: t.adminStoresLink });
     addItem({ href: "/dashboard/products", label: t.productCatalogLink });
+    addItem({ href: "/dashboard/posts", label: t.postsLink });
   }
 
   if (
