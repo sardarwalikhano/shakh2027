@@ -144,6 +144,31 @@ select
 from public.orders o
 on conflict (order_id, idempotency_key) do nothing;
 
+-- M06 permitted customer cancellation before audit logging existed. Preserve
+-- that historical fact as a second event rather than showing only the initial placement.
+insert into public.order_status_events (
+  order_id,
+  from_status,
+  to_status,
+  actor_user_id,
+  actor_role,
+  reason,
+  idempotency_key,
+  created_at
+)
+select
+  o.id,
+  'placed',
+  'cancelled',
+  o.customer_id,
+  'customer'::public.app_role,
+  'Cancelled before M07 audit logging was enabled',
+  'legacy-cancelled:' || o.id::text,
+  o.updated_at
+from public.orders o
+where o.status = 'cancelled'
+on conflict (order_id, idempotency_key) do nothing;
+
 -- Internal transition worker. It locks the order, validates the actor and transition,
 -- restores tracked stock on cancellation, updates status and appends the audit event
 -- in one PostgreSQL transaction.
