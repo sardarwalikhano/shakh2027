@@ -72,10 +72,32 @@ In Supabase Dashboard → Authentication → SMTP Settings, enable Custom SMTP a
 | Port | `465` |
 | Username | `resend` |
 | Password | The new `SHAKH STORE SMTP - verified shakh domain` sending-only API key |
-| Sender email | `no-reply@shakh.daim-post.online` |
-| Sender name | `SHAKH STORE` |
+| Sender email | `shakh@shakh.daim-post.online` |
+| Sender name | `SHAKH` |
 
 Port 465 is the recommended implicit-TLS SMTP endpoint for Resend. Port 587 is an alternative with STARTTLS; do not mix the security mode for these ports. Keep email confirmations enabled; do not enable auto-confirm as a workaround.
+
+## Hostinger DNS reference for the active Resend domain
+
+The active DNS zone is the parent domain `daim-post.online`. In Hostinger, use these host/name values (the parent zone is appended automatically):
+
+| Purpose | Type | Host / Name | Target / Value | Current Resend status |
+| --- | --- | --- | --- | --- |
+| DKIM | TXT | `resend._domainkey.shakh` | Copy the complete public key shown by Resend | Verified |
+| SPF return-path | CNAME | `rsend.shakh` | `rsend-apne1.forge.rmta.net` | Verified |
+| SPF sending | CNAME | `send.shakh` | `send.forge.rmta.net` | Verified |
+
+The two CNAME records use TTL 3600; the DKIM record uses the Resend-provided automatic TTL. Resend's live domain API currently reports the complete domain as `verified` with sending enabled and receiving disabled. Do not replace or delete any of these three verified records. No MX record is required because inbound receiving is intentionally disabled.
+
+### DMARC (separate deliverability/security improvement)
+
+DMARC is not shown as a required verification record in the current Resend domain response, so it is not the cause of the recent SMTP 550 rejection. The supplied DNS summary described DMARC as not started, but the connected Resend API does not independently report DMARC state. Before adding a subdomain policy, check whether `_dmarc.daim-post.online` already publishes a policy. If there is no existing applicable policy and no `_dmarc.shakh` record, a monitoring-only record can be added in Hostinger:
+
+| Type | Host / Name | Value | TTL |
+| --- | --- | --- | --- |
+| TXT | `_dmarc.shakh` | `v=DMARC1; p=none;` | 3600 |
+
+`p=none` is monitoring only; do not move directly to `quarantine` or `reject` until all legitimate sending sources are inventoried and DMARC reports have been reviewed. A policy on the organizational domain may already apply to subdomains, so do not publish a second or conflicting policy without checking the existing record.
 
 ## Auth URL configuration
 
@@ -119,10 +141,10 @@ The app's `/auth/callback` route exchanges the PKCE authorization code for a coo
 ## Domain and email delivery state (2026-11-15)
 
 - Vercel production domains `www.daim-post.online` and `daim-post.online`: verified; apex redirects to `www`.
-- Resend's current domain `shakh.daim-post.online`: fully verified; sending enabled; receiving disabled. DKIM TXT and both SPF CNAME records are verified.
+- Resend's current domain `shakh.daim-post.online`: live API status `verified`; sending enabled; receiving disabled. DKIM TXT, `rsend.shakh` CNAME and `send.shakh` CNAME all report `verified`. TTLs and targets are documented above. The earlier user-supplied note saying `rsend.shakh` was pending is superseded by this later live Resend result.
 - A previous password-recovery email was delivered on 2026-11-15 at 11:01:18 UTC using the former `mail.daim-post.online` configuration. That test is not proof the current configuration is valid.
 - A later password-recovery request on 2026-11-15 at 12:01:47 UTC failed with SMTP 550: `The associated domain with your API key is not verified`. This identified a sender/API-key mismatch: Supabase was still using `no-reply@mail.daim-post.online` and an API key scoped to the former domain, while the active verified Resend domain is `shakh.daim-post.online`.
-- A replacement Resend key with `sending_access` permission restricted to `shakh.daim-post.online` has now been created. The operator must paste that one-time token into Supabase SMTP Password and change Sender email to `no-reply@shakh.daim-post.online`. This credential has not been installed into Supabase by the automation.
+- A replacement Resend key with `sending_access` permission restricted to `shakh.daim-post.online` has now been created. The operator must paste that one-time token into Supabase SMTP Password and change Sender email to `shakh@shakh.daim-post.online` and Sender name to `SHAKH`. This credential has not been installed into Supabase by the automation.
 - After saving the new SMTP password/sender, request a fresh password recovery email and verify its Resend status is `delivered`; then click that newest link once, confirm it reaches `/reset-password`, update the password, sign out and sign in with the new password.
 - SMTP credentials must remain in Supabase's private SMTP settings. Never store the Resend API key in GitHub, in a `NEXT_PUBLIC_*` variable, or in client-side code.
 
