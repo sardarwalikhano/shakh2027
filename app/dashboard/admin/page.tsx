@@ -1,19 +1,21 @@
 import { requireAnyRole } from "@/lib/auth/context";
+import { getMessages } from "@/lib/i18n/locale";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   await requireAnyRole(["super_admin"]);
+  const { messages: t } = await getMessages();
 
   return (
     <main className="dashboard-page">
       <section className="dashboard-welcome">
         <span className="eyebrow"><i /> Super Admin</span>
-        <h1>ناوەندی <em>بەڕێوەبردنی شاخ</em></h1>
-        <p>بەڕێوەبردنی هەژمار، فرۆشگا، پۆست، ئۆردەر، Wallet و ڕاپۆرتەکان.</p>
+        <h1>{t.adminTitle}</h1>
+        <p>{t.adminDescription}</p>
         <div className="account-card">
-          <strong>فرۆشگای تایبەتی SHAKH STORE</strong>
-          <span>پۆستکردنی بەرهەم لە هەموو پۆلەکاندا تەنها لە خاوەندارێتی فرۆشگای پلاتفۆرمدا دەبێت.</span>
+          <strong>{t.platformStore}</strong>
+          <span>{t.platformStoreDescription}</span>
         </div>
       </section>
     </main>
