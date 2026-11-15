@@ -4,7 +4,7 @@
 
 - Project ref: `zuxywfixaawupwgtbugi`
 - API URL: `https://zuxywfixaawupwgtbugi.supabase.co`
-- Vercel production site: `https://shakh2027.vercel.app`
+- Vercel production site: `https://www.daim-post.online`
 
 Preflight on 2026-11-15 confirmed: 0 public tables, 0 recorded migrations, 0 Auth users and 0 Storage buckets. This gives a clean starting point; it is not a substitute for maintaining backups after production data begins to accumulate.
 
@@ -26,7 +26,7 @@ The current Vercel project `shakh2027` uses these variables:
 ```dotenv
 NEXT_PUBLIC_SUPABASE_URL=https://zuxywfixaawupwgtbugi.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<SUPABASE_PUBLISHABLE_KEY>
-NEXT_PUBLIC_SITE_URL=https://shakh2027.vercel.app
+NEXT_PUBLIC_SITE_URL=https://www.daim-post.online
 ```
 
 Use the modern `sb_publishable_...` key. The legacy `anon` key is public-compatible, but is not needed in this project. Never put a Supabase secret or `service_role` key into a `NEXT_PUBLIC_*` variable.
@@ -62,11 +62,11 @@ Do not accept an ID supplied by a browser form as proof of identity. The first e
 
 In Supabase Dashboard → Authentication → URL Configuration:
 
-- Site URL: `https://shakh2027.vercel.app`
-- Redirect URL: `https://shakh2027.vercel.app/auth/callback`
+- Site URL: `https://www.daim-post.online`
+- Redirect URL: `https://www.daim-post.online/auth/callback`
 - Local development redirect: `http://localhost:3000/auth/callback`
 
-Add the custom domain `daim-post.online` and its Auth redirect URL only after DNS and Vercel domain verification are complete.
+The Vercel custom domains `www.daim-post.online` and `daim-post.online` are verified. The apex domain redirects to `www`. In Supabase Authentication → URL Configuration, set Site URL to `https://www.daim-post.online` and add `https://www.daim-post.online/auth/callback` plus `https://www.daim-post.online/**` (or explicit required paths) to the redirect allow list.
 
 Configure a verified SMTP sender identity before relying on production confirmation and password recovery email delivery.
 
