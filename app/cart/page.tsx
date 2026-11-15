@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default async function CartPage({ searchParams }: Props) {
-  const [{ messages: t }, params, supabase] = await Promise.all([
+  const [{ messages: t, locale }, params, supabase] = await Promise.all([
     getMessages(),
     searchParams,
     createClient(),
@@ -45,6 +45,7 @@ export default async function CartPage({ searchParams }: Props) {
       <CartCheckoutClient
         isAuthenticated={Boolean(user)}
         success={params.success === "created"}
+        locale={locale}
         labels={{
           cartTitle: t.cartTitle,
           cartDescription: t.cartDescription,
