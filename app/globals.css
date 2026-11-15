@@ -109,3 +109,6 @@ h1 em { color: var(--apricot-deep); font-style: normal; }
 .forgot-link { justify-self: start; margin-top: 7px; color: var(--apricot-deep); font-size: 12px; font-weight: 700; }
 .auth-footnote { margin: 18px 0 0; color: var(--muted); font-size: 12px; }
 .auth-footnote a { color: var(--apricot-deep); font-weight: 700; }
+
+.secondary-action { display: inline-flex; align-items: center; min-height: 48px; padding: 0 4px; color: var(--apricot-deep); font-size: 13px; font-weight: 700; }
+.hero-actions { flex-wrap: wrap; }
