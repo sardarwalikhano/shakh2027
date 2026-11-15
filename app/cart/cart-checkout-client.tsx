@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { checkoutCodOrder } from "./actions";
 import { CART_STORAGE_KEY, type CartProduct } from "@/components/cart/add-to-cart-button";
 
@@ -94,7 +94,7 @@ export function CartCheckoutClient({ isAuthenticated, success, labels }: Props) 
     persist(items.filter((item) => item.productId !== productId));
   }
 
-  function prepareCheckout(event: React.FormEvent<HTMLFormElement>) {
+  function prepareCheckout(event: FormEvent<HTMLFormElement>) {
     if (!itemsInput.current || items.length === 0) {
       event.preventDefault();
       return;
