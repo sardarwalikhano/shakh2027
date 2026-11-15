@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { checkoutCodOrder } from "./actions";
-import { CART_STORAGE_KEY, type CartProduct } from "@/components/cart/add-to-cart-button";
+import { CART_STORAGE_KEY, CART_REQUEST_KEY, type CartProduct } from "@/components/cart/add-to-cart-button";
 
 type CartLine = CartProduct & { quantity: number };
 
@@ -39,6 +39,7 @@ function formatIqd(value: number, locale: string) {
 
 export function CartCheckoutClient({ isAuthenticated, success, labels }: Props) {
   const [items, setItems] = useState<CartLine[]>([]);
+  const [requestKey, setRequestKey] = useState("");
   const itemsInput = useRef<HTMLInputElement>(null);
   const [locale, setLocale] = useState("en-IQ");
 
@@ -46,10 +47,18 @@ export function CartCheckoutClient({ isAuthenticated, success, labels }: Props) 
     setLocale(document.documentElement.lang === "ku" ? "ku-IQ" : document.documentElement.lang === "ar" ? "ar-IQ" : "en-IQ");
     if (success) {
       window.localStorage.removeItem(CART_STORAGE_KEY);
+      window.localStorage.removeItem(CART_REQUEST_KEY);
       setItems([]);
+      setRequestKey("");
       window.dispatchEvent(new Event("shakh-cart-updated"));
       return;
     }
+    let storedRequestKey = window.localStorage.getItem(CART_REQUEST_KEY);
+    if (!storedRequestKey || !/^[0-9a-f-]{36}$/i.test(storedRequestKey)) {
+      storedRequestKey = window.crypto.randomUUID();
+      window.localStorage.setItem(CART_REQUEST_KEY, storedRequestKey);
+    }
+    setRequestKey(storedRequestKey);
     try {
       const raw = window.localStorage.getItem(CART_STORAGE_KEY);
       const parsed: unknown = raw ? JSON.parse(raw) : [];
@@ -79,6 +88,9 @@ export function CartCheckoutClient({ isAuthenticated, success, labels }: Props) 
   function persist(next: CartLine[]) {
     setItems(next);
     window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(next));
+    const nextRequestKey = window.crypto.randomUUID();
+    setRequestKey(nextRequestKey);
+    window.localStorage.setItem(CART_REQUEST_KEY, nextRequestKey);
     window.dispatchEvent(new Event("shakh-cart-updated"));
   }
 
@@ -165,6 +177,7 @@ export function CartCheckoutClient({ isAuthenticated, success, labels }: Props) 
           {isAuthenticated ? (
             <form action={checkoutCodOrder} className="cart-checkout-form" onSubmit={prepareCheckout}>
               <input ref={itemsInput} type="hidden" name="items" />
+              <input type="hidden" name="requestKey" value={requestKey} />
               <label>
                 {labels.customerName}
                 <input name="customerName" required minLength={2} maxLength={120} />
