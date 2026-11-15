@@ -20,6 +20,7 @@ export default async function DashboardLayout({
     { href: "/dashboard", label: t.dashboardEyebrow },
     { href: "/dashboard/profile", label: t.profileLink },
     { href: "/catalog", label: t.productPublicCatalog },
+    { href: "/cart", label: t.cartTitle },
   ];
   const roles = new Set<AppRole>(context.roles);
   const addItem = (item: NavItem) => {
@@ -31,6 +32,7 @@ export default async function DashboardLayout({
     addItem({ href: "/dashboard/admin/stores", label: t.adminStoresLink });
     addItem({ href: "/dashboard/products", label: t.productCatalogLink });
     addItem({ href: "/dashboard/posts", label: t.postsLink });
+    addItem({ href: "/dashboard/admin/delivery", label: t.adminDeliveryLink });
   }
 
   if (
@@ -50,6 +52,7 @@ export default async function DashboardLayout({
 
   if (roles.has("customer")) {
     addItem({ href: "/dashboard/customer", label: t.customerTitle });
+    addItem({ href: "/dashboard/customer/orders", label: t.customerOrdersLink });
   }
 
   return (
