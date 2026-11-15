@@ -21,7 +21,8 @@ as $$
           and (select private.is_super_admin())
         )
         or (
-          s.owner_id = (select auth.uid())
+          not (select private.is_super_admin())
+          and s.owner_id = (select auth.uid())
           and exists (
             select 1
             from public.user_roles ur
