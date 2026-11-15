@@ -56,7 +56,7 @@ Never commit .env.local, Supabase secret keys, or service-role keys.
 - M02 shared role-aware dashboard navigation is merged into `main` and deployed to Vercel. The shared shell displays database-authorized links for Super Admin, merchants, captains and customers.
 - M03 Merchant Store onboarding code is merged into `main` through PR #1. It adds role-validated merchant applications, the dedicated platform-owned SHAKH STORE row, atomic Super Admin approval/rejection RPCs, review audit events, RLS and the merchant/admin pages.
 - The M03 migration is additive but is not yet applied to production. Production DDL is gated on a restorable backup and a non-production security test.
-- M04 Product Catalog is under development on `feat/m04-product-catalog`. It adds IQD-priced products, role/store/category checks, product image uploads, merchant/admin catalog management and a public catalog. Its migration depends on M03 and is not applied to production.
+- M04 Product Catalog code has been merged into `main` through PR #3. It adds IQD-priced products, role/store/category checks, validated product image uploads, merchant/admin catalog management and a public catalog. Its migration depends on M03 and is not applied to production. The UI displays a setup state until M03/M04 database migrations are safely deployed.
 - Posts/rewards, checkout/orders, captain delivery, wallet/ledger, commission settlement, referrals, top-ups and cashout workflows remain future implementation work. The financial rules in this README are approved requirements, not evidence that those workflows are already live.
 
 ## Database status
@@ -68,7 +68,9 @@ The active SHAKH STORE Supabase project is `zuxywfixaawupwgtbugi` in `ap-northea
 
 Both tables have RLS enabled. The current target project is separate from the legacy Supabase project `ewulzprizvbgypzaogez`; that legacy project and its data must remain untouched.
 
-The M03 migration file `supabase/migrations/202611150003_merchant_stores.sql` is additive and includes `stores`, `store_review_events`, merchant store submission and Super Admin review functions, RLS policies, indexes, and the single platform-owned SHAKH STORE row. It must not be applied to production until a restorable backup is confirmed and the migration is reviewed. The available Supabase connector does not create or download a restorable database backup, so production DDL remains pending rather than claiming a backup exists.
+The M03 migration file `supabase/migrations/202611150003_merchant_stores.sql` is additive and includes `stores`, `store_review_events`, merchant store submission and Super Admin review functions, RLS policies, indexes, and the single platform-owned SHAKH STORE row.
+
+The M04 migration file `supabase/migrations/202611150004_catalog_products.sql` depends on M03 and adds IQD-priced products, store/category-aware catalog RPCs, product-image Storage bucket and policies, and public product reads. Neither M03 nor M04 is applied to production. The available Supabase connector does not create or download a restorable database backup, so production DDL remains pending until a backup/restore point and non-production migration tests are confirmed.
 
 The previous `docs/database-audit.md` is a historical read-only audit of the legacy project, not a description of the active SHAKH STORE target. Do not run its old-project findings as SQL against the new target.
 
@@ -82,7 +84,7 @@ The previous `docs/database-audit.md` is a historical read-only audit of the leg
 
 ## Production integration
 
-- GitHub repository: `sardarwalikhano/shakh2027`, branch `main`. M02 and M03 code are merged; M04 is in development on `feat/m04-product-catalog`.
+- GitHub repository: `sardarwalikhano/shakh2027`, branch `main`. M02, M03 and M04 application code are merged. M03/M04 production database migrations remain gated on backup and non-production validation.
 - Vercel project: `shakh2027`.
 - Canonical production URL: `https://www.daim-post.online`; `https://daim-post.online` redirects to `www`.
 - Vercel project environment variables include the Supabase URL, publishable key and canonical site URL for production, preview and development.
