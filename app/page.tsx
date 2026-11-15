@@ -1,12 +1,9 @@
 import Link from "next/link";
+import { getMessages } from "@/lib/i18n/locale";
 
-const highlights = [
-  { number: "01", title: "فرۆشگاکان", detail: "بازاڕێک بۆ فرۆشگاکانی شاخ و بازرگانەکان" },
-  { number: "02", title: "داواکارییەکان", detail: "ڕێڕەوی ڕوونی کڕین، ئامادەکردن و گەیاندن" },
-  { number: "03", title: "پارەدان و باڵانس", detail: "ژمێریاری پارێزراو بە دیناری عێراقی" },
-];
+export default async function HomePage() {
+  const { messages: t, locale } = await getMessages();
 
-export default function HomePage() {
   return (
     <main className="landing">
       <header className="topbar">
@@ -14,17 +11,17 @@ export default function HomePage() {
           <span className="brand-mark">ش</span>
           <span><strong>SHAKH</strong><small>STORE</small></span>
         </Link>
-        <span className="market-label">بازاڕی دیجیتاڵی عێراق</span>
+        <span className="market-label">{t.marketLabel}</span>
       </header>
       <section className="hero">
         <div className="hero-copy">
-          <span className="eyebrow"><i /> پلاتفۆرمی بازرگانی شاخ</span>
-          <h1>بازاڕێکی نوێ،<br /><em>ئەزموونێکی ئاسان.</em></h1>
-          <p>شوێنێکی یەکگرتوو بۆ بینینی بەرهەمەکان، داواکردن و بەڕێوەبردنی فرۆشگا و گەیاندن؛ بە شێوەیەکی ڕێکخراو و پارێزراو.</p>
+          <span className="eyebrow"><i /> {t.homeEyebrow}</span>
+          <h1>{t.homeTitle}<br /><em>{t.homeTitleEmphasis}</em></h1>
+          <p>{t.homeDescription}</p>
           <div className="hero-actions">
-            <Link className="primary-action" href="/login">چوونەژوورەوە <span>←</span></Link>
-            <Link className="secondary-action" href="/signup">دروستکردنی هەژمار</Link>
-            <span className="currency-note">IQD · دیناری عێراقی</span>
+            <Link className="primary-action" href="/login">{t.login} <span>←</span></Link>
+            <Link className="secondary-action" href="/signup">{t.signup}</Link>
+            <span className="currency-note">{t.currencyNote}</span>
           </div>
         </div>
         <div className="hero-art" aria-hidden="true">
@@ -38,18 +35,18 @@ export default function HomePage() {
           <span className="art-dot dot-one" /><span className="art-dot dot-two" /><span className="art-dot dot-three" />
         </div>
       </section>
-      <section className="highlights" aria-label="بەشەکانی پلاتفۆرم">
-        {highlights.map((item) => (
-          <article className="highlight" key={item.number}>
-            <span className="highlight-number">{item.number}</span>
-            <div><h2>{item.title}</h2><p>{item.detail}</p></div>
+      <section className="highlights" aria-label={t.marketLabel}>
+        {t.highlights.map(([title, detail], index) => (
+          <article className="highlight" key={title}>
+            <span className="highlight-number">{String(index + 1).padStart(2, "0")}</span>
+            <div><h2>{title}</h2><p>{detail}</p></div>
             <span className="highlight-arrow">↗</span>
           </article>
         ))}
       </section>
       <footer className="footer">
         <span>© {new Date().getFullYear()} SHAKH STORE</span>
-        <span>بەرهەمی شاخ · عێراق</span>
+        <span>{locale === "en" ? "SHAKH marketplace · Iraq" : locale === "ar" ? "سوق شاخ · العراق" : "بەرهەمی شاخ · عێراق"}</span>
       </footer>
     </main>
   );
