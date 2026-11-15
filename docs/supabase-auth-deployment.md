@@ -60,24 +60,22 @@ Do not accept an ID supplied by a browser form as proof of identity. The first e
 
 ## Resend SMTP configuration
 
-Resend has a sending-enabled domain `mail.daim-post.online` in region `ap-northeast-1`. DKIM and both SPF CNAME records are verified. The MX record for inbound receiving is pending; inbound receiving is not required for Supabase Auth outbound messages.
+Resend's currently verified sending domain is `shakh.daim-post.online` in region `ap-northeast-1`. Its DKIM TXT and both SPF CNAME records are verified; sending is enabled and receiving is disabled. The previously configured `mail.daim-post.online` sender/key is no longer valid for the current Resend account/domain configuration.
 
-A domain-restricted, sending-access-only Resend API key has been created for SHAKH STORE. Enter it directly in the Supabase Dashboard and do not commit it to Git or place it in any `NEXT_PUBLIC_*` variable.
+A new domain-restricted, `sending_access` API key has been created specifically for `shakh.daim-post.online`. The token is shown only once to the operator in the ChatGPT conversation. Paste it directly into Supabase SMTP Password. Never commit it to Git or put it in a `NEXT_PUBLIC_*` variable.
 
-In Supabase Dashboard → Authentication → SMTP Settings, enable Custom SMTP and use:
+In Supabase Dashboard → Authentication → SMTP Settings, enable Custom SMTP and replace the old sender settings with:
 
 | Setting | Value |
 | --- | --- |
 | Host | `smtp.resend.com` |
 | Port | `465` |
 | Username | `resend` |
-| Password | The newly created SHAKH STORE Resend API key |
-| Sender email | `no-reply@mail.daim-post.online` |
+| Password | The new `SHAKH STORE SMTP - verified shakh domain` sending-only API key |
+| Sender email | `no-reply@shakh.daim-post.online` |
 | Sender name | `SHAKH STORE` |
 
-Port 465 is the recommended implicit-TLS SMTP endpoint for Resend. Port 587 is an alternative with STARTTLS; do not mix the security mode for these ports.
-
-After saving, send a password-reset test and inspect the Resend email logs for delivery, bounce or rejection. Keep email confirmations enabled; do not turn on auto-confirm merely to bypass SMTP testing.
+Port 465 is the recommended implicit-TLS SMTP endpoint for Resend. Port 587 is an alternative with STARTTLS; do not mix the security mode for these ports. Keep email confirmations enabled; do not enable auto-confirm as a workaround.
 
 ## Auth URL configuration
 
@@ -121,12 +119,11 @@ The app's `/auth/callback` route exchanges the PKCE authorization code for a coo
 ## Domain and email delivery state (2026-11-15)
 
 - Vercel production domains `www.daim-post.online` and `daim-post.online`: verified; apex redirects to `www`.
-- Resend domain `mail.daim-post.online`: sending enabled.
-- Resend DKIM TXT and both SPF CNAME records: verified.
-- Resend inbound MX record: pending. MX is for receiving mail and is not required for Supabase Auth outbound mail.
-- Supabase Custom SMTP settings were reported saved by the operator. Auth logs showed a configuration reload after the save. The earlier `535 "Invalid username"` failure was followed by a successful password-recovery request on 2026-11-15 at 11:01:19 UTC (HTTP 200).
-- Resend recorded the corresponding `Reset your password` message as `delivered` at 11:01:18 UTC. The inspected message used Supabase's `/auth/v1/verify` endpoint with `type=recovery` and a `redirect_to` pointing to `https://www.daim-post.online/auth/callback?next=/reset-password`; it contained no Vercel deployment URL. The recipient has not yet completed the final click-through and password update.
-- Earlier reset links clicked around 08:57 UTC returned `One-time token not found`; do not reuse those older or already-clicked links. Use the newest message and click its link once.
+- Resend's current domain `shakh.daim-post.online`: fully verified; sending enabled; receiving disabled. DKIM TXT and both SPF CNAME records are verified.
+- A previous password-recovery email was delivered on 2026-11-15 at 11:01:18 UTC using the former `mail.daim-post.online` configuration. That test is not proof the current configuration is valid.
+- A later password-recovery request on 2026-11-15 at 12:01:47 UTC failed with SMTP 550: `The associated domain with your API key is not verified`. This identified a sender/API-key mismatch: Supabase was still using `no-reply@mail.daim-post.online` and an API key scoped to the former domain, while the active verified Resend domain is `shakh.daim-post.online`.
+- A replacement Resend key with `sending_access` permission restricted to `shakh.daim-post.online` has now been created. The operator must paste that one-time token into Supabase SMTP Password and change Sender email to `no-reply@shakh.daim-post.online`. This credential has not been installed into Supabase by the automation.
+- After saving the new SMTP password/sender, request a fresh password recovery email and verify its Resend status is `delivered`; then click that newest link once, confirm it reaches `/reset-password`, update the password, sign out and sign in with the new password.
 - SMTP credentials must remain in Supabase's private SMTP settings. Never store the Resend API key in GitHub, in a `NEXT_PUBLIC_*` variable, or in client-side code.
 
 ## End-to-end verification checklist
