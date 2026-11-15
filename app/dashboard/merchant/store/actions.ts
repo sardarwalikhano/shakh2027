@@ -55,7 +55,6 @@ export async function submitMerchantStore(formData: FormData) {
   if (error) {
     console.error("Merchant store application failed.", {
       code: error.code,
-      status: error.status,
     });
     if (error.code === "23505") redirect("/dashboard/merchant/store?error=duplicate");
     if (error.code === "42501") redirect("/dashboard/merchant/store?error=role");
