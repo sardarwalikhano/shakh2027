@@ -94,7 +94,10 @@ export default async function ProductManagementPage({ searchParams }: Props) {
     else if (data && isStoreType(data.store_type)) stores.push(data as StoreRow);
   }
 
-  if (context.roles.some((role) => ["restaurant", "supermarket", "meat_seafood_vendor", "baqal"].includes(role))) {
+  if (
+    !context.roles.includes("super_admin")
+    && context.roles.some((role) => ["restaurant", "supermarket", "meat_seafood_vendor", "baqal"].includes(role))
+  ) {
     const { data, error } = await supabase
       .from("stores")
       .select("id, store_type, name, slug, status")
