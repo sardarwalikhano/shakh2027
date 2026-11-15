@@ -64,7 +64,7 @@ export default async function CartPage({ searchParams }: Props) {
           checkoutSuccess: t.checkoutSuccess,
           viewOrders: t.customerOrdersLink,
           addToCart: t.addToCart,
-          invalidCart: t.checkoutInvalidCart,
+          invalidCart: t.invalidCart,
         }}
       />
     </main>
