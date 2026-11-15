@@ -194,7 +194,7 @@ export function CartCheckoutClient({ isAuthenticated, success, locale, labels }:
           {isAuthenticated ? (
             <form action={checkoutCodOrder} className="cart-checkout-form" onSubmit={prepareCheckout}>
               <input ref={itemsInput} type="hidden" name="items" />
-              <input ref={requestKeyInput} type="hidden" name="requestKey" defaultValue={requestKey} />
+              <input ref={requestKeyInput} type="hidden" name="requestKey" value={requestKey} readOnly />
               <label>
                 {labels.customerName}
                 <input name="customerName" required minLength={2} maxLength={120} />
