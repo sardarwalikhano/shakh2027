@@ -6,10 +6,12 @@ import { getMessages } from "@/lib/i18n/locale";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+type Props = { searchParams: Promise<{ error?: string }> };
+
+export default async function DashboardPage({ searchParams }: Props) {
   const context = await getAuthContext();
   if (!context) redirect("/login");
-  const { messages: t } = await getMessages();
+  const [{ messages: t }, params] = await Promise.all([getMessages(), searchParams]);
 
   const primaryRole = context.roles[0];
   const roleDestination = primaryRole ? ROLE_DEFAULT_PATH[primaryRole] : null;
@@ -20,6 +22,9 @@ export default async function DashboardPage() {
         <span className="eyebrow"><i /> {t.dashboardEyebrow}</span>
         <h1>{t.dashboardWelcome} {context.fullName ?? ""} <em>SHAKH STORE</em></h1>
         <p>{context.email ?? context.userId}</p>
+        {params.error === "profile" && (
+          <p className="form-error" role="alert">{t.profileLoadError}</p>
+        )}
         <div className="account-card">
           <span>{t.currentAccount}</span>
           <strong dir="ltr">{context.email ?? context.userId}</strong>
