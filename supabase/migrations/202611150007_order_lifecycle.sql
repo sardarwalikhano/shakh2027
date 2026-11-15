@@ -165,7 +165,6 @@ declare
   v_event_id uuid;
   v_reason text := nullif(btrim(coalesce(p_reason, '')), '');
   v_allowed boolean := false;
-  v_item record;
 begin
   if auth.uid() is null then
     raise exception 'Authentication is required.'
@@ -176,7 +175,11 @@ begin
      or p_next_status is null
      or p_idempotency_key is null
      or char_length(btrim(p_idempotency_key)) not between 12 and 160
-     or char_length(coalesce(p_reason, '')) > 500 then
+     or char_length(coalesce(p_reason, '')) > 500
+     or (
+       nullif(btrim(coalesce(p_reason, '')), '') is not null
+       and char_length(btrim(p_reason)) < 3
+     ) then
     raise exception 'Order transition input is invalid.'
       using errcode = '22023';
   end if;
