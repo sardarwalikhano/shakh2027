@@ -1,6 +1,6 @@
 # SHAKH STORE
 
-Production application for the SHAKH STORE marketplace in Iraq.
+Standalone foundation for the SHAKH STORE marketplace in Iraq. The repository is separate from the user's other SHAKH projects.
 
 ## Approved product decisions
 
@@ -37,9 +37,22 @@ Production application for the SHAKH STORE marketplace in Iraq.
 
 Never commit .env.local, Supabase secret keys, or service-role keys.
 
-## Database status — audit required before schema writes
+## Implementation status
 
-The connected Supabase project currently contains 11 public tables and data in several tables. It has no recorded migration history. Existing schema and routines are not yet aligned with the approved Database Blueprint.
+- Sorani, Arabic and English landing and authentication flows are implemented with RTL/LTR direction switching.
+- Email/password sign-in, sign-up, email callback, password recovery and password update routes are implemented.
+- Server-side session validation and role-aware dashboard route guards are implemented against the planned `profiles` and `user_roles` tables.
+- Role dashboards exist for Super Admin, merchants, captains and customers.
+- PWA manifest, service-worker registration, static-asset caching and an offline fallback are included. Authenticated pages and API responses are explicitly excluded from service-worker caching.
+- GitHub Actions validates TypeScript, ESLint and the production build.
+
+The frontend is not yet connected to a newly provisioned production database. Do not treat the role-based dashboard guard as active until the target schema and RLS policies have been deployed.
+
+## Database status — production project pending
+
+The previously inspected Supabase project `ewulzprizvbgypzaogez` is a legacy project and is not the target for this standalone build. It contains 11 public tables and existing data, and has no recorded migration history. It must not be reset or modified for SHAKH STORE.
+
+A separate `SHAKH-STORE-PRODUCTION` project was requested, but project provisioning was blocked by the platform tool. Create a new Supabase project in the selected organization and region, then connect the repository to that new project before applying migrations.
 
 Known blockers from the initial read-only audit:
 
