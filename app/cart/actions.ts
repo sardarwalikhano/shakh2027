@@ -15,6 +15,7 @@ export async function checkoutCodOrder(formData: FormData) {
   if (!isSupabaseConfigured()) redirect("/cart?error=config");
 
   const rawItems = field(formData, "items");
+  const checkoutRequestId = field(formData, "requestKey");
   const customerName = field(formData, "customerName");
   const customerPhone = field(formData, "customerPhone");
   const deliveryAddress = field(formData, "deliveryAddress");
@@ -28,7 +29,8 @@ export async function checkoutCodOrder(formData: FormData) {
   }
 
   if (
-    !Array.isArray(items)
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(checkoutRequestId)
+    || !Array.isArray(items)
     || items.length < 1
     || items.length > 50
     || customerName.length < 2
@@ -69,6 +71,7 @@ export async function checkoutCodOrder(formData: FormData) {
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("create_cod_checkout", {
+    p_checkout_request_id: checkoutRequestId,
     p_items: parsedItems,
     p_customer_name: customerName,
     p_customer_phone: customerPhone,
