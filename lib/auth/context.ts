@@ -34,6 +34,17 @@ export async function getAuthContext(): Promise<AuthContext | null> {
     .map((item) => item.role)
     .filter(isAppRole);
 
+  const rolePriority: Record<AppRole, number> = {
+    super_admin: 0,
+    restaurant: 1,
+    supermarket: 2,
+    meat_seafood_vendor: 3,
+    baqal: 4,
+    captain: 5,
+    customer: 6,
+  };
+  roles.sort((left, right) => rolePriority[left] - rolePriority[right]);
+
   return {
     userId,
     email,
