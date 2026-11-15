@@ -10,7 +10,7 @@ M06 depends on M03 merchant stores and M04 products. The feature branch `feat/m0
 - One checkout submission can contain items from multiple stores. A single database transaction creates one separate order per store, each with the configured store delivery fee.
 - COD is the only payment method in M06; new orders start with payment status `unpaid`.
 - Super Admin delivery fee configuration per active store. An absent or disabled fee configuration blocks checkout. Zero IQD is permitted only when Super Admin explicitly configures it (free delivery).
-- Database-side product-price lookup, published/active store checks, stock validation, stable row locking and stock decrement.
+- Database-side product-price lookup, published/active store checks, stock validation, stable row locking, stock decrement, and request-key idempotency to prevent duplicate orders after a retry or lost response.
 - Order and line-item snapshots preserve product name, unit, price and quantity at checkout; historic order totals do not change when catalog prices change.
 - Customer order history with store, status, item lines, subtotal, delivery fee and total.
 - Customer cancellation only while the order remains `placed` and `unpaid`; tracked product stock is restored atomically.
@@ -58,7 +58,9 @@ M06 depends on M03 and M04 schema. M05 feature code is the base branch, but M06 
 12. Verify direct client INSERT/UPDATE/DELETE on orders, order items and delivery settings is denied.
 13. Verify customer cancellation is allowed only while the order is unpaid and `placed`; cancellation restores tracked stock exactly once.
 14. Verify once the merchant accepts the order, the customer cancellation RPC rejects it.
-15. Verify COD is the only payment method accepted and new payment status is always unpaid.
+15. Verify repeated submission with the same checkout request key returns the existing order set and does not decrement inventory twice.
+16. Verify a fresh checkout request key creates a new order set, even when the cart contents are identical.
+17. Verify COD is the only payment method accepted and new payment status is always unpaid.
 
 ## Known boundaries for later phases
 
