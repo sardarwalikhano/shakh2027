@@ -35,6 +35,10 @@ export default async function AdminDashboardPage() {
             <strong>{t.adminDeliveryLink}</strong>
             <span>{t.adminDeliveryDescription}</span>
           </Link>
+          <Link className="dashboard-action-card" href="/dashboard/admin/orders">
+            <strong>{t.orderManagementLink}</strong>
+            <span>{t.orderAdminIntro}</span>
+          </Link>
         </div>
       </section>
     </main>
